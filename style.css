@@ -1,0 +1,49 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+#app {
+  display: flex;
+  min-height: 100vh;
+}
+#sidebar {
+  display: flex;
+  flex-direction: column;
+  background: #f0f0f0;
+  padding: 1rem;
+}
+#sidebar button {
+  margin: 0.5rem 0;
+}
+#content {
+  flex: 1;
+  padding: 1rem;
+}
+.section {
+  display: none;
+}
+.section.active {
+  display: block;
+}
+#mobile-tabs {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #f0f0f0;
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5rem 0;
+}
+#mobile-tabs button {
+  flex: 1;
+}
+@media (max-width: 600px) {
+  #sidebar {
+    display: none;
+  }
+  #mobile-tabs {
+    display: flex;
+  }
+}
