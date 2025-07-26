@@ -6,6 +6,7 @@ const assetList = document.getElementById('asset-list');
 const addAssetBtn = document.getElementById('add-asset');
 const expensesInput = document.getElementById('expenses');
 const retirementDiv = document.getElementById('retirement');
+const yearsInput = document.getElementById('years');
 
 const formModal = document.getElementById('asset-form');
 const formTitle = document.getElementById('form-title');
@@ -158,6 +159,7 @@ expensesInput.onchange = () => {
     saveData();
     updateChart();
 };
+yearsInput.onchange = updateChart;
 
 deleteAssetBtn.onclick = () => {
     if(editIndex != null){
@@ -283,22 +285,33 @@ function forecast(months) {
 let chart = null;
 
 function updateChart() {
-    const months = 600; // 50 years
+    const years = parseInt(yearsInput.value) || 20;
+    const months = years * 12;
     const data = forecast(months);
-    const labels = Array.from({length: months}, (_, i) => i+1);
+
+    const bestPts = data.best.map((v,i)=>({x:i/12, y:v}));
+    const avgPts = data.avg.map((v,i)=>({x:i/12, y:v}));
+    const worstPts = data.worst.map((v,i)=>({x:i/12, y:v}));
 
     if (chart) chart.destroy();
     chart = new Chart(document.getElementById('chart'), {
         type: 'line',
         data: {
-            labels,
             datasets: [
-                {label: 'Best', data: data.best, borderColor: 'green', fill:false},
-                {label: 'Average', data: data.avg, borderColor: 'blue', fill:false},
-                {label: 'Worst', data: data.worst, borderColor: 'red', fill:false}
+                {label: 'Best', data: bestPts, borderColor: 'green', fill:false},
+                {label: 'Average', data: avgPts, borderColor: 'blue', fill:false},
+                {label: 'Worst', data: worstPts, borderColor: 'red', fill:false}
             ]
         },
-        options: {scales: {x: {display:false}}}
+        options: {
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: {display: true, text: 'Years'},
+                    ticks: {stepSize: 1}
+                }
+            }
+        }
     });
 
     const target = (parseFloat(expensesInput.value) || 0) * 25;
