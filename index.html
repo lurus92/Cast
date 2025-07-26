@@ -9,30 +9,43 @@
 </head>
 <body>
     <h1>Cast</h1>
-    <div class="container">
-        <div class="left">
-            <canvas id="chart"></canvas>
-            <label id="years-wrap">Years to display
-                <input type="number" id="years" value="20" min="1">
-            </label>
-            <div id="retirement">
-                <span id="retire-best"></span>
-                <span id="retire-avg"></span>
-                <span id="retire-worst"></span>
-            </div>
-            <table id="year-table"></table>
-        </div>
-        <div class="right">
-            <h2>Assets</h2>
-            <div id="total-wealth"></div>
-            <div id="asset-list"></div>
-            <button id="add-asset">Add Asset</button>
-            <h2>Flows</h2>
-            <div id="flow-list"></div>
-            <button id="add-flow">Add Flow</button>
-            <h2>Yearly Expenses</h2>
-            <input type="number" id="expenses" placeholder="Yearly expenses" />
-        </div>
+    <div class="app-container">
+        <nav id="sidebar">
+            <button class="nav-btn active" data-section="forecast">Forecast</button>
+            <button class="nav-btn" data-section="assets">Assets</button>
+            <button class="nav-btn" data-section="flows">Flows</button>
+            <button class="nav-btn" data-section="expenses">Expenses</button>
+        </nav>
+        <main id="content">
+            <section id="forecast-section" class="section">
+                <canvas id="chart"></canvas>
+                <label id="years-wrap">Years to display
+                    <input type="number" id="years" value="20" min="1">
+                </label>
+                <div id="retirement">
+                    <span id="retire-best"></span>
+                    <span id="retire-avg"></span>
+                    <span id="retire-worst"></span>
+                </div>
+                <table id="year-table"></table>
+            </section>
+            <section id="assets-section" class="section hidden">
+                <h2>Assets</h2>
+                <div id="total-wealth"></div>
+                <div id="asset-list"></div>
+                <button id="add-asset">Add Asset</button>
+            </section>
+            <section id="flows-section" class="section hidden">
+                <h2>Flows</h2>
+                <div id="flow-list"></div>
+                <button id="add-flow">Add Flow</button>
+            </section>
+            <section id="expenses-section" class="section hidden">
+                <h2>Yearly Expenses</h2>
+                <input type="number" id="expenses" placeholder="Yearly expenses" />
+            </section>
+        </main>
+    </div>
     <div id="asset-form" class="modal hidden">
         <div class="modal-content">
             <h3 id="form-title">New Asset</h3>

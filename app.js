@@ -43,6 +43,25 @@ const saveFlow = document.getElementById('save-flow');
 const cancelFlow = document.getElementById('cancel-flow');
 const deleteFlowBtn = document.getElementById('delete-flow');
 
+const navButtons = document.querySelectorAll('.nav-btn');
+const sections = {
+    forecast: document.getElementById('forecast-section'),
+    assets: document.getElementById('assets-section'),
+    flows: document.getElementById('flows-section'),
+    expenses: document.getElementById('expenses-section')
+};
+
+function showSection(name){
+    Object.keys(sections).forEach(key=>{
+        sections[key].classList.toggle('hidden', key!==name);
+        document.querySelector(`[data-section="${key}"]`).classList.toggle('active', key===name);
+    });
+}
+
+navButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>showSection(btn.dataset.section));
+});
+
 let editIndex = null;
 let editFlowIndex = null;
 
@@ -373,3 +392,4 @@ function updateChart() {
 
 renderAssets();
 updateChart();
+showSection('forecast');

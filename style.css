@@ -129,3 +129,55 @@ label {
     gap: 0.25rem;
 }
 
+/* Layout for new navigation */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+#sidebar {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+#sidebar button {
+    border: none;
+    background: none;
+    padding: 1rem;
+    text-align: left;
+}
+
+#sidebar button.active {
+    font-weight: bold;
+}
+
+#content {
+    flex: 1;
+    padding: 1rem;
+}
+
+.section.hidden {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    #sidebar {
+        flex-direction: row;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-top: 1px solid #ccc;
+        z-index: 10;
+    }
+    #sidebar button {
+        flex: 1;
+        text-align: center;
+    }
+    #content {
+        padding-bottom: 4rem;
+    }
+}
+
