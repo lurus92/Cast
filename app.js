@@ -2,6 +2,11 @@ let assets = JSON.parse(localStorage.getItem('assets') || '[]');
 let flows = JSON.parse(localStorage.getItem('flows') || '[]');
 let expenses = parseFloat(localStorage.getItem('expenses')) || 0;
 
+const colorPalette = [
+    '#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9966FF',
+    '#FF9F40', '#3F51B5', '#009688', '#795548', '#607D8B'
+];
+
 const assetList = document.getElementById('asset-list');
 const addAssetBtn = document.getElementById('add-asset');
 const totalWealthDiv = document.getElementById('total-wealth');
@@ -56,16 +61,24 @@ function saveData() {
 
 function renderAssets() {
     assetList.innerHTML = '';
+    let updated = false;
     assets.forEach((asset, index) => {
+        if(!asset.color){
+            asset.color = colorPalette[index % colorPalette.length];
+            updated = true;
+        }
         const div = document.createElement('div');
         div.className = 'asset';
-        div.textContent = `${asset.name} - ${asset.type}`;
+        const colorBox = `<span class="asset-color" style="background:${asset.color}"></span>`;
+        div.innerHTML = `${colorBox}${asset.name} - ${asset.type}`;
         div.onclick = () => openForm(index);
         assetList.appendChild(div);
     });
     const total = assets.reduce((s,a)=>s+a.value*(a.weight??100)/100,0);
     totalWealthDiv.textContent = `Total wealth: ${total.toFixed(2)}`;
     renderFlows();
+    updatePieChart();
+    if(updated) saveData();
 }
 
 function renderFlows() {
@@ -156,8 +169,10 @@ function flowData() {
 saveAsset.onclick = () => {
     const data = formData();
     if (editIndex != null) {
+        data.color = assets[editIndex].color;
         assets[editIndex] = data;
     } else {
+        data.color = colorPalette[assets.length % colorPalette.length];
         assets.push(data);
     }
     saveData();
@@ -315,6 +330,7 @@ function forecast(months) {
 }
 
 let chart = null;
+let pieChart = null;
 
 function updateChart() {
     const years = parseInt(yearsInput.value) || 20;
@@ -371,5 +387,22 @@ function updateChart() {
     }
 }
 
+function updatePieChart(){
+    const labels = assets.map(a=>a.name);
+    const data = assets.map(a=>a.value*(a.weight??100)/100);
+    const colors = assets.map((a,i)=>{
+        if(!a.color) a.color = colorPalette[i % colorPalette.length];
+        return a.color;
+    });
+    const ctx = document.getElementById('asset-pie');
+    if(!ctx) return;
+    if(pieChart) pieChart.destroy();
+    pieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {labels, datasets:[{data, backgroundColor: colors}]},
+    });
+}
+
 renderAssets();
 updateChart();
+updatePieChart();
