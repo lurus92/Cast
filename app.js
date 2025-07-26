@@ -18,9 +18,12 @@ const incWorst = document.getElementById('inc-worst');
 const divBest = document.getElementById('div-best');
 const divAvg = document.getElementById('div-avg');
 const divWorst = document.getElementById('div-worst');
+const incType = document.getElementById('inc-type');
+const divType = document.getElementById('div-type');
 const compoundInput = document.getElementById('asset-compound');
 const saveAsset = document.getElementById('save-asset');
 const cancelAsset = document.getElementById('cancel-asset');
+const deleteAssetBtn = document.getElementById('delete-asset');
 
 const flowList = document.getElementById('flow-list');
 const addFlowBtn = document.getElementById('add-flow');
@@ -31,6 +34,7 @@ const flowTo = document.getElementById('flow-to');
 const flowAmount = document.getElementById('flow-amount');
 const saveFlow = document.getElementById('save-flow');
 const cancelFlow = document.getElementById('cancel-flow');
+const deleteFlowBtn = document.getElementById('delete-flow');
 
 let editIndex = null;
 let editFlowIndex = null;
@@ -82,7 +86,10 @@ function openForm(index) {
         divBest.value = a.divBest;
         divAvg.value = a.divAvg;
         divWorst.value = a.divWorst;
+        incType.value = a.incType || 'abs';
+        divType.value = a.divType || 'abs';
         compoundInput.value = a.compound;
+        deleteAssetBtn.classList.remove('hidden');
     } else {
         editIndex = null;
         formTitle.textContent = 'New Asset';
@@ -95,7 +102,10 @@ function openForm(index) {
         divBest.value = '';
         divAvg.value = '';
         divWorst.value = '';
+        incType.value = 'abs';
+        divType.value = 'abs';
         compoundInput.value = 'monthly';
+        deleteAssetBtn.classList.add('hidden');
     }
     formModal.classList.remove('hidden');
 }
@@ -114,6 +124,8 @@ function formData() {
         divBest: parseFloat(divBest.value) || 0,
         divAvg: parseFloat(divAvg.value) || 0,
         divWorst: parseFloat(divWorst.value) || 0,
+        incType: incType.value,
+        divType: divType.value,
         compound: compoundInput.value,
     };
 }
@@ -147,6 +159,16 @@ expensesInput.onchange = () => {
     updateChart();
 };
 
+deleteAssetBtn.onclick = () => {
+    if(editIndex != null){
+        assets.splice(editIndex,1);
+        saveData();
+        renderAssets();
+        updateChart();
+    }
+    closeForm();
+};
+
 function populateFlowSelects(){
     flowFrom.innerHTML = '';
     flowTo.innerHTML = '';
@@ -168,12 +190,14 @@ function openFlowForm(index){
         flowFrom.value = f.from;
         flowTo.value = f.to;
         flowAmount.value = f.amount;
+        deleteFlowBtn.classList.remove('hidden');
     } else {
         editFlowIndex = null;
         flowTitle.textContent = 'New Flow';
         flowFrom.selectedIndex = 0;
         flowTo.selectedIndex = 0;
         flowAmount.value = '';
+        deleteFlowBtn.classList.add('hidden');
     }
     flowModal.classList.remove('hidden');
 }
@@ -194,6 +218,16 @@ saveFlow.onclick = () => {
 cancelFlow.onclick = closeFlowForm;
 addFlowBtn.onclick = () => openFlowForm(null);
 
+deleteFlowBtn.onclick = () => {
+    if(editFlowIndex != null){
+        flows.splice(editFlowIndex,1);
+        saveData();
+        renderFlows();
+        updateChart();
+    }
+    closeFlowForm();
+};
+
 function forecast(months) {
     const best = Array(months).fill(0);
     const avg = Array(months).fill(0);
@@ -205,9 +239,26 @@ function forecast(months) {
 
     for (let i=0;i<months;i++) {
         assets.forEach((asset, idx)=>{
-            bVals[idx] += asset.incBest + asset.divBest;
-            aVals[idx] += asset.incAvg + asset.divAvg;
-            wVals[idx] += asset.incWorst + asset.divWorst;
+            // apply increase
+            if(asset.incType === 'pct'){
+                bVals[idx] *= 1 + asset.incBest/100;
+                aVals[idx] *= 1 + asset.incAvg/100;
+                wVals[idx] *= 1 + asset.incWorst/100;
+            } else {
+                bVals[idx] += asset.incBest;
+                aVals[idx] += asset.incAvg;
+                wVals[idx] += asset.incWorst;
+            }
+            // apply dividends
+            if(asset.divType === 'pct'){
+                bVals[idx] += bVals[idx]*asset.divBest/100;
+                aVals[idx] += aVals[idx]*asset.divAvg/100;
+                wVals[idx] += wVals[idx]*asset.divWorst/100;
+            } else {
+                bVals[idx] += asset.divBest;
+                aVals[idx] += asset.divAvg;
+                wVals[idx] += asset.divWorst;
+            }
         });
         flows.forEach(f=>{
             if(bVals[f.from]!=null && bVals[f.to]!=null){
