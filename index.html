@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cast - Wealth Forecast</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Use Chart.js v3 to support the Sankey plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.11.0/dist/chartjs-chart-sankey.min.js"></script>
 </head>
 <body>
     <h1>Cast</h1>
@@ -25,9 +27,11 @@
         <div class="right">
             <h2>Assets</h2>
             <div id="total-wealth"></div>
+            <canvas id="asset-pie" width="200" height="200"></canvas>
             <div id="asset-list"></div>
             <button id="add-asset">Add Asset</button>
             <h2>Flows</h2>
+            <canvas id="flow-sankey" width="300" height="200"></canvas>
             <div id="flow-list"></div>
             <button id="add-flow">Add Flow</button>
             <h2>Yearly Expenses</h2>
