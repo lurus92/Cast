@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cast - Wealth Forecast</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Cast</h1>
+    <div class="container">
+        <div class="left">
+            <canvas id="chart"></canvas>
+            <div id="retirement"></div>
+        </div>
+        <div class="right">
+            <h2>Assets</h2>
+            <div id="asset-list"></div>
+            <button id="add-asset">Add Asset</button>
+            <h2>Flows</h2>
+            <div id="flow-list"></div>
+            <button id="add-flow">Add Flow</button>
+            <h2>Yearly Expenses</h2>
+            <input type="number" id="expenses" placeholder="Yearly expenses" />
+        </div>
+    <div id="asset-form" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="form-title">New Asset</h3>
+            <label>Name <input type="text" id="asset-name"></label>
+            <label>Type
+                <select id="asset-type">
+                    <option value="cash">Cash</option>
+                    <option value="investing">Investing Account</option>
+                    <option value="realestate">Real Estate</option>
+                </select>
+            </label>
+            <label>Starting Value <input type="number" id="asset-value"></label>
+            <label>Monthly Increase (best/avg/worst)
+                <input type="number" id="inc-best" placeholder="Best">
+                <input type="number" id="inc-avg" placeholder="Avg">
+                <input type="number" id="inc-worst" placeholder="Worst">
+            </label>
+            <label>Monthly Dividend (best/avg/worst)
+                <input type="number" id="div-best" placeholder="Best">
+                <input type="number" id="div-avg" placeholder="Avg">
+                <input type="number" id="div-worst" placeholder="Worst">
+            </label>
+            <label>Compounding
+                <select id="asset-compound">
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </label>
+            <button id="save-asset">Save</button>
+            <button id="cancel-asset">Cancel</button>
+        </div>
+    </div>
+<div id="flow-form" class="modal hidden">
+    <div class="modal-content">
+        <h3 id="flow-title">New Flow</h3>
+        <label>From
+            <select id="flow-from"></select>
+        </label>
+        <label>To
+            <select id="flow-to"></select>
+        </label>
+        <label>Amount per month <input type="number" id="flow-amount"></label>
+        <button id="save-flow">Save</button>
+        <button id="cancel-flow">Cancel</button>
+    </div>
+</div>
+    <script src="app.js"></script>
+
+</body>
+</html>

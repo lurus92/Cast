@@ -1,0 +1,59 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    padding: 1rem;
+}
+
+.left {
+    flex: 2;
+}
+
+.right {
+    flex: 1;
+    padding-left: 1rem;
+}
+
+#asset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.asset {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    background: #f9f9f9;
+    cursor: pointer;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 1rem;
+    width: 300px;
+}
+
+.hidden {
+    display: none;
+}
+
+#flow-list {
+    margin-top: 1rem;
+}
+
