@@ -4,8 +4,12 @@ let expenses = parseFloat(localStorage.getItem('expenses')) || 0;
 
 const assetList = document.getElementById('asset-list');
 const addAssetBtn = document.getElementById('add-asset');
+const totalWealthDiv = document.getElementById('total-wealth');
 const expensesInput = document.getElementById('expenses');
-const retirementDiv = document.getElementById('retirement');
+const retireBestSpan = document.getElementById('retire-best');
+const retireAvgSpan = document.getElementById('retire-avg');
+const retireWorstSpan = document.getElementById('retire-worst');
+const yearTable = document.getElementById('year-table');
 const yearsInput = document.getElementById('years');
 
 const formModal = document.getElementById('asset-form');
@@ -22,6 +26,8 @@ const divWorst = document.getElementById('div-worst');
 const incType = document.getElementById('inc-type');
 const divType = document.getElementById('div-type');
 const compoundInput = document.getElementById('asset-compound');
+const weightInput = document.getElementById('asset-weight');
+const compToggle = document.getElementById('asset-comp-toggle');
 const saveAsset = document.getElementById('save-asset');
 const cancelAsset = document.getElementById('cancel-asset');
 const deleteAssetBtn = document.getElementById('delete-asset');
@@ -57,6 +63,8 @@ function renderAssets() {
         div.onclick = () => openForm(index);
         assetList.appendChild(div);
     });
+    const total = assets.reduce((s,a)=>s+a.value*(a.weight??100)/100,0);
+    totalWealthDiv.textContent = `Total wealth: ${total.toFixed(2)}`;
     renderFlows();
 }
 
@@ -90,6 +98,8 @@ function openForm(index) {
         incType.value = a.incType || 'abs';
         divType.value = a.divType || 'abs';
         compoundInput.value = a.compound;
+        weightInput.value = a.weight ?? 100;
+        compToggle.checked = a.compoundEnabled !== false;
         deleteAssetBtn.classList.remove('hidden');
     } else {
         editIndex = null;
@@ -106,6 +116,8 @@ function openForm(index) {
         incType.value = 'abs';
         divType.value = 'abs';
         compoundInput.value = 'monthly';
+        weightInput.value = 100;
+        compToggle.checked = true;
         deleteAssetBtn.classList.add('hidden');
     }
     formModal.classList.remove('hidden');
@@ -128,6 +140,8 @@ function formData() {
         incType: incType.value,
         divType: divType.value,
         compound: compoundInput.value,
+        weight: parseFloat(weightInput.value) || 100,
+        compoundEnabled: compToggle.checked,
     };
 }
 
@@ -231,24 +245,36 @@ deleteFlowBtn.onclick = () => {
 };
 
 function forecast(months) {
-    const best = Array(months).fill(0);
-    const avg = Array(months).fill(0);
-    const worst = Array(months).fill(0);
+    const best = Array(months+1).fill(0);
+    const avg = Array(months+1).fill(0);
+    const worst = Array(months+1).fill(0);
 
     const bVals = assets.map(a => a.value);
     const aVals = assets.map(a => a.value);
     const wVals = assets.map(a => a.value);
+    const startVals = assets.map(a => a.value);
 
-    for (let i=0;i<months;i++) {
+    best[0] = assets.reduce((s,a)=>s+a.value*(a.weight??100)/100,0);
+    avg[0] = best[0];
+    worst[0] = best[0];
+
+    for (let i=1;i<=months;i++) {
         assets.forEach((asset, idx)=>{
+            const start = startVals[idx];
             // apply increase
             if(asset.incType === 'pct'){
                 const bRate = asset.incBest/100/12;
                 const aRate = asset.incAvg/100/12;
                 const wRate = asset.incWorst/100/12;
-                bVals[idx] *= 1 + bRate;
-                aVals[idx] *= 1 + aRate;
-                wVals[idx] *= 1 + wRate;
+                if(asset.compoundEnabled!==false){
+                    bVals[idx] *= 1 + bRate;
+                    aVals[idx] *= 1 + aRate;
+                    wVals[idx] *= 1 + wRate;
+                } else {
+                    bVals[idx] += start*bRate;
+                    aVals[idx] += start*aRate;
+                    wVals[idx] += start*wRate;
+                }
             } else {
                 bVals[idx] += asset.incBest;
                 aVals[idx] += asset.incAvg;
@@ -259,9 +285,15 @@ function forecast(months) {
                 const bRate = asset.divBest/100/12;
                 const aRate = asset.divAvg/100/12;
                 const wRate = asset.divWorst/100/12;
-                bVals[idx] += bVals[idx]*bRate;
-                aVals[idx] += aVals[idx]*aRate;
-                wVals[idx] += wVals[idx]*wRate;
+                if(asset.compoundEnabled!==false){
+                    bVals[idx] += bVals[idx]*bRate;
+                    aVals[idx] += aVals[idx]*aRate;
+                    wVals[idx] += wVals[idx]*wRate;
+                } else {
+                    bVals[idx] += start*bRate;
+                    aVals[idx] += start*aRate;
+                    wVals[idx] += start*wRate;
+                }
             } else {
                 bVals[idx] += asset.divBest;
                 aVals[idx] += asset.divAvg;
@@ -275,9 +307,9 @@ function forecast(months) {
                 wVals[f.from]-=f.amount; wVals[f.to]+=f.amount;
             }
         });
-        best[i] = bVals.reduce((s,v)=>s+v,0);
-        avg[i] = aVals.reduce((s,v)=>s+v,0);
-        worst[i] = wVals.reduce((s,v)=>s+v,0);
+        best[i] = bVals.reduce((s,v,idx)=>s+v*(assets[idx].weight??100)/100,0);
+        avg[i] = aVals.reduce((s,v,idx)=>s+v*(assets[idx].weight??100)/100,0);
+        worst[i] = wVals.reduce((s,v,idx)=>s+v*(assets[idx].weight??100)/100,0);
     }
     return {best, avg, worst};
 }
@@ -315,15 +347,27 @@ function updateChart() {
     });
 
     const target = (parseFloat(expensesInput.value) || 0) * 25;
-    let retireMonth = null;
-    for (let i=0;i<data.avg.length;i++) {
-        if (data.avg[i] >= target) { retireMonth = i+1; break; }
-    }
-    if (retireMonth) {
-        const years = (retireMonth/12).toFixed(1);
-        retirementDiv.textContent = `${years} years to retirement`;
-    } else {
-        retirementDiv.textContent = 'Retirement not reached';
+    const findRetire = arr => {
+        for(let i=0;i<arr.length;i++) if(arr[i]>=target) return i; return null;
+    };
+    const rBest = findRetire(data.best);
+    const rAvg = findRetire(data.avg);
+    const rWorst = findRetire(data.worst);
+    retireBestSpan.textContent = rBest!=null?`Best: ${(rBest/12).toFixed(1)} yrs`:'Best: N/A';
+    retireAvgSpan.textContent = rAvg!=null?`Average: ${(rAvg/12).toFixed(1)} yrs`:'Average: N/A';
+    retireWorstSpan.textContent = rWorst!=null?`Worst: ${(rWorst/12).toFixed(1)} yrs`:'Worst: N/A';
+
+    yearTable.innerHTML = '';
+    const header = document.createElement('tr');
+    header.innerHTML = '<th>Year</th><th>Best</th><th>Average</th><th>Worst</th>';
+    yearTable.appendChild(header);
+    for(let y=0;y<=10&&y<data.best.length;y++){
+        const row = document.createElement('tr');
+        const b = data.best[Math.min(y*12,data.best.length-1)];
+        const a = data.avg[Math.min(y*12,data.avg.length-1)];
+        const w = data.worst[Math.min(y*12,data.worst.length-1)];
+        row.innerHTML = `<td>${y}</td><td>${b.toFixed(2)}</td><td>${a.toFixed(2)}</td><td>${w.toFixed(2)}</td>`;
+        yearTable.appendChild(row);
     }
 }
 

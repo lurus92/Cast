@@ -15,10 +15,16 @@
             <label id="years-wrap">Years to display
                 <input type="number" id="years" value="20" min="1">
             </label>
-            <div id="retirement"></div>
+            <div id="retirement">
+                <span id="retire-best"></span>
+                <span id="retire-avg"></span>
+                <span id="retire-worst"></span>
+            </div>
+            <table id="year-table"></table>
         </div>
         <div class="right">
             <h2>Assets</h2>
+            <div id="total-wealth"></div>
             <div id="asset-list"></div>
             <button id="add-asset">Add Asset</button>
             <h2>Flows</h2>
@@ -61,7 +67,9 @@
                 <input type="number" id="div-avg" placeholder="Avg">
                 <input type="number" id="div-worst" placeholder="Worst">
             </label>
-            <label>Compounding
+            <label>Contribution % <input type="number" id="asset-weight" value="100"></label>
+            <label><input type="checkbox" id="asset-comp-toggle" checked> Enable Compounding</label>
+            <label>Compounding Frequency
                 <select id="asset-compound">
                     <option value="monthly">Monthly</option>
                     <option value="yearly">Yearly</option>
