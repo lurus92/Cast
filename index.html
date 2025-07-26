@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cast</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <nav id="sidebar">
+    <button data-section="forecast">Forecast</button>
+    <button data-section="assets">Assets</button>
+    <button data-section="flows">Flows</button>
+    <button data-section="expenses">Expenses</button>
+  </nav>
+  <main id="content">
+    <section id="forecast" class="section active">
+      <h1>Forecast</h1>
+      <div class="graph-placeholder">Graph Placeholder</div>
+      <table class="table-placeholder">
+        <tr><th>Year</th><th>Value</th></tr>
+        <tr><td>2024</td><td>$10,000</td></tr>
+      </table>
+    </section>
+    <section id="assets" class="section">
+      <h1>Assets</h1>
+      <div class="assets-placeholder">Assets list here</div>
+      <button class="add-asset">Add Asset</button>
+    </section>
+    <section id="flows" class="section">
+      <h1>Flows</h1>
+      <div class="flows-placeholder">Flows list here</div>
+      <button class="add-flow">Add Flow</button>
+    </section>
+    <section id="expenses" class="section">
+      <h1>Expenses</h1>
+      <label>
+        Yearly Expenses:
+        <input type="number" id="yearly-expenses" />
+      </label>
+    </section>
+  </main>
+</div>
+<div id="mobile-tabs">
+  <button data-section="forecast">Forecast</button>
+  <button data-section="assets">Assets</button>
+  <button data-section="flows">Flows</button>
+  <button data-section="expenses">Expenses</button>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

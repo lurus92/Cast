@@ -19,3 +19,14 @@ There should also be a section in which the user can write how much they spend y
 
 This project should be built for the web, so only web technologies should be used. Prefer a clean approach with vanilla JS (no React, no Angular, etc.).
 For now, we can just use localstorage to store data
+
+## Layout
+
+The application is organized in four main sections that can be reached via a sidebar on desktop screens or through a bottom tab bar on mobile devices.
+
+1. **Forecast** – Displays the main graph along with a summary table.
+2. **Assets** – Shows total wealth, individual assets and an "Add Asset" button.
+3. **Flows** – Lists the defined flows and an "Add Flow" button.
+4. **Expenses** – Allows editing of the yearly expense value.
+
+The sidebar is hidden on small screens while the bottom navigation becomes visible, providing a mobile friendly, iOS-style experience.
