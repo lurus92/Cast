@@ -2,6 +2,13 @@ let assets = JSON.parse(localStorage.getItem('assets') || '[]');
 let flows = JSON.parse(localStorage.getItem('flows') || '[]');
 let expenses = parseFloat(localStorage.getItem('expenses')) || 0;
 
+function colorFor(index){
+    const hue = (index * 60) % 360;
+    return `hsl(${hue},70%,60%)`;
+}
+
+assets.forEach((a,i)=>{ if(!a.color) a.color = colorFor(i); });
+
 const assetList = document.getElementById('asset-list');
 const addAssetBtn = document.getElementById('add-asset');
 const totalWealthDiv = document.getElementById('total-wealth');
@@ -38,6 +45,8 @@ const flowModal = document.getElementById('flow-form');
 const flowTitle = document.getElementById('flow-title');
 const flowFrom = document.getElementById('flow-from');
 const flowTo = document.getElementById('flow-to');
+const assetPieCanvas = document.getElementById('asset-pie');
+const sankeyCanvas = document.getElementById('flow-sankey');
 const flowAmount = document.getElementById('flow-amount');
 const saveFlow = document.getElementById('save-flow');
 const cancelFlow = document.getElementById('cancel-flow');
@@ -60,11 +69,13 @@ function renderAssets() {
         const div = document.createElement('div');
         div.className = 'asset';
         div.textContent = `${asset.name} - ${asset.type}`;
+        div.style.borderLeft = `16px solid ${asset.color}`;
         div.onclick = () => openForm(index);
         assetList.appendChild(div);
     });
     const total = assets.reduce((s,a)=>s+a.value*(a.weight??100)/100,0);
     totalWealthDiv.textContent = `Total wealth: ${total.toFixed(2)}`;
+    updatePieChart();
     renderFlows();
 }
 
@@ -79,6 +90,7 @@ function renderFlows() {
         div.onclick = () => openFlowForm(index);
         flowList.appendChild(div);
     });
+    updateSankey();
 }
 
 function openForm(index) {
@@ -156,8 +168,10 @@ function flowData() {
 saveAsset.onclick = () => {
     const data = formData();
     if (editIndex != null) {
+        data.color = assets[editIndex].color;
         assets[editIndex] = data;
     } else {
+        data.color = colorFor(assets.length);
         assets.push(data);
     }
     saveData();
@@ -315,6 +329,33 @@ function forecast(months) {
 }
 
 let chart = null;
+let pieChart = null;
+let sankeyChart = null;
+
+function updatePieChart(){
+    if(!assetPieCanvas) return;
+    const data = {
+        labels: assets.map(a=>a.name),
+        datasets: [{
+            data: assets.map(a=>a.value*(a.weight??100)/100),
+            backgroundColor: assets.map(a=>a.color)
+        }]
+    };
+    if(pieChart) pieChart.destroy();
+    pieChart = new Chart(assetPieCanvas,{type:'pie',data});
+}
+
+function updateSankey(){
+    if(!sankeyCanvas) return;
+    const links = flows.map(f=>({from: assets[f.from]?.name, to: assets[f.to]?.name, flow: f.amount}))
+        .filter(l=>l.from && l.to);
+    if(sankeyChart) sankeyChart.destroy();
+    sankeyChart = new Chart(sankeyCanvas,{
+        type:'sankey',
+        data:{datasets:[{data:links, colorFrom:(c)=>assets.find(a=>a.name===c.from)?.color,
+                                        colorTo:(c)=>assets.find(a=>a.name===c.to)?.color}]}
+    });
+}
 
 function updateChart() {
     const years = parseInt(yearsInput.value) || 20;
