@@ -241,9 +241,12 @@ function forecast(months) {
         assets.forEach((asset, idx)=>{
             // apply increase
             if(asset.incType === 'pct'){
-                bVals[idx] *= 1 + asset.incBest/100;
-                aVals[idx] *= 1 + asset.incAvg/100;
-                wVals[idx] *= 1 + asset.incWorst/100;
+                const bRate = asset.incBest/100/12;
+                const aRate = asset.incAvg/100/12;
+                const wRate = asset.incWorst/100/12;
+                bVals[idx] *= 1 + bRate;
+                aVals[idx] *= 1 + aRate;
+                wVals[idx] *= 1 + wRate;
             } else {
                 bVals[idx] += asset.incBest;
                 aVals[idx] += asset.incAvg;
@@ -251,9 +254,12 @@ function forecast(months) {
             }
             // apply dividends
             if(asset.divType === 'pct'){
-                bVals[idx] += bVals[idx]*asset.divBest/100;
-                aVals[idx] += aVals[idx]*asset.divAvg/100;
-                wVals[idx] += wVals[idx]*asset.divWorst/100;
+                const bRate = asset.divBest/100/12;
+                const aRate = asset.divAvg/100/12;
+                const wRate = asset.divWorst/100/12;
+                bVals[idx] += bVals[idx]*bRate;
+                aVals[idx] += aVals[idx]*aRate;
+                wVals[idx] += wVals[idx]*wRate;
             } else {
                 bVals[idx] += asset.divBest;
                 aVals[idx] += asset.divAvg;
