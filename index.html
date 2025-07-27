@@ -16,13 +16,37 @@
     <div class="container">
         <div id="forecast-section" class="tab-section">
             <canvas id="chart"></canvas>
-            <label id="years-wrap">Years to display
-                <input type="number" id="years" value="20" min="1">
-            </label>
+            <div id="years-wrap">
+                <div class="years-control">
+                    <span class="label">Years to display:</span>
+                    <div class="number-control">
+                        <button class="number-btn" id="years-minus"><i class="fa fa-minus"></i></button>
+                        <input type="number" id="years" value="20" min="1">
+                        <button class="number-btn" id="years-plus"><i class="fa fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
             <div id="retirement">
-                <span id="retire-best"></span>
-                <span id="retire-avg"></span>
-                <span id="retire-worst"></span>
+                <h3>Time to Retire 
+                    <span class="info-tooltip">
+                        <i class="fa fa-info-circle"></i>
+                        <span class="tooltip-text">Based on the 4% Rule: A financial principle suggesting you can safely withdraw 4% of your investment portfolio each year for retirement income. When your yearly investment returns (estimated at 4%) equal your expenses, you've reached financial independence.</span>
+                    </span>
+                </h3>
+                <div class="retirement-scenarios">
+                    <div class="scenario best">
+                        <span class="label">Best Case</span>
+                        <span id="retire-best" class="value"></span>
+                    </div>
+                    <div class="scenario average">
+                        <span class="label">Average Case</span>
+                        <span id="retire-avg" class="value"></span>
+                    </div>
+                    <div class="scenario worst">
+                        <span class="label">Worst Case</span>
+                        <span id="retire-worst" class="value"></span>
+                    </div>
+                </div>
             </div>
             <table id="year-table"></table>
         </div>

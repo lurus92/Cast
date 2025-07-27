@@ -218,6 +218,24 @@ expensesInput.onchange = () => {
 };
 yearsInput.onchange = updateChart;
 
+// Handle years control buttons
+const yearsPlusBtn = document.getElementById('years-plus');
+const yearsMinusBtn = document.getElementById('years-minus');
+
+yearsPlusBtn.onclick = () => {
+    const currentValue = parseInt(yearsInput.value) || 20;
+    yearsInput.value = currentValue + 1;
+    yearsInput.dispatchEvent(new Event('change'));
+};
+
+yearsMinusBtn.onclick = () => {
+    const currentValue = parseInt(yearsInput.value) || 20;
+    if (currentValue > 1) {  // Ensure we don't go below min value
+        yearsInput.value = currentValue - 1;
+        yearsInput.dispatchEvent(new Event('change'));
+    }
+};
+
 assetAddFlowBtn.onclick = () => {
     if(editIndex != null){
         openFlowForm(null);
