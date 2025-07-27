@@ -8,20 +8,18 @@ body {
 }
 
 .container {
-    display: flex;
-    padding: 2rem;
-    gap: 2rem;
     max-width: 1200px;
     margin: auto;
+    padding: 1rem;
 }
 
-.left {
-    flex: 2;
+.tab-section {
     background: white;
     padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 10px 15px -3px rgba(0,0,0,0.05);
     transition: box-shadow 0.2s ease;
+    margin-bottom: 1.5rem;
 }
 
 #years-wrap {
@@ -58,17 +56,6 @@ body {
     letter-spacing: 0.05em;
 }
 
-.right {
-    flex: 1;
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 10px 15px -3px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    transition: box-shadow 0.2s ease;
-}
 
 #total-wealth {
     font-weight: 600;
@@ -373,5 +360,79 @@ select {
 
 #flow-sankey {
     margin-top: 1rem;
+}
+
+.tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
+    justify-content: space-around;
+    padding: 0.25rem 0;
+    z-index: 100;
+}
+
+.tab-bar button {
+    background: none;
+    border: none;
+    flex: 1;
+    padding: 0.25rem 0;
+    font-size: 0.75rem;
+    color: #475569;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tab-bar button.active {
+    color: #1e293b;
+}
+
+.tab-bar i {
+    font-size: 1.25rem;
+}
+
+.fab {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .container { padding-bottom: 80px; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+    .tab-bar { display: flex; }
+    #add-asset.fab {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #add-asset.fab span { display: none; }
+}
+
+@media (min-width: 769px) {
+    .container {
+        display: flex;
+        padding: 2rem;
+        gap: 2rem;
+    }
+    .tab-section { display: block; }
+    .tab-bar { display: none; }
+    #forecast-section { flex: 2; }
+    #assets-section,
+    #flows-section,
+    #expenses-section { flex: 1; }
 }
 

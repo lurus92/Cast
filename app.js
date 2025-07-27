@@ -423,3 +423,25 @@ function updateSankey(){
 renderAssets();
 updateChart();
 updatePieChart();
+
+// Tab navigation for mobile
+const sections = document.querySelectorAll('.tab-section');
+const tabButtons = document.querySelectorAll('.tab-bar button');
+
+function showTab(id){
+    sections.forEach(sec=>{
+        if(sec.id === id) sec.classList.add('active');
+        else sec.classList.remove('active');
+    });
+}
+
+tabButtons.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+        tabButtons.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        showTab(btn.dataset.tab);
+    });
+});
+
+// Show default tab
+showTab('forecast-section');

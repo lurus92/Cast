@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cast - Wealth Forecast</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 <body>
     <h1>Cast</h1>
     <div class="container">
-        <div class="left">
+        <div id="forecast-section" class="tab-section">
             <canvas id="chart"></canvas>
             <label id="years-wrap">Years to display
                 <input type="number" id="years" value="20" min="1">
@@ -23,19 +24,30 @@
             </div>
             <table id="year-table"></table>
         </div>
-        <div class="right">
+        <div id="assets-section" class="tab-section">
             <h2>Assets</h2>
             <div id="total-wealth"></div>
             <canvas id="asset-pie"></canvas>
             <div id="asset-list"></div>
-            <button id="add-asset">Add Asset</button>
+            <button id="add-asset" class="fab"><i class="fa fa-plus"></i><span>Add Asset</span></button>
+        </div>
+        <div id="flows-section" class="tab-section">
             <h2>Flows</h2>
+            <div id="flow-sankey" style="width:100%;height:300px;"></div>
             <div id="flow-list"></div>
             <button id="add-flow">Add Flow</button>
-            <div id="flow-sankey" style="width:100%;height:300px;"></div>
+        </div>
+        <div id="expenses-section" class="tab-section">
             <h2>Yearly Expenses</h2>
             <input type="number" id="expenses" placeholder="Yearly expenses" />
         </div>
+    </div>
+    <div class="tab-bar">
+        <button data-tab="forecast-section" class="active"><i class="fa fa-chart-line"></i><span>Forecast</span></button>
+        <button data-tab="assets-section"><i class="fa fa-wallet"></i><span>Assets</span></button>
+        <button data-tab="flows-section"><i class="fa fa-exchange-alt"></i><span>Flows</span></button>
+        <button data-tab="expenses-section"><i class="fa fa-money-bill-wave"></i><span>Expenses</span></button>
+    </div>
     <div id="asset-form" class="modal hidden">
         <div class="modal-content">
             <h3 id="form-title">New Asset</h3>
