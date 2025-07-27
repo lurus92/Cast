@@ -1,21 +1,31 @@
 # Cast
 
-Cast (abbreviation of Forecast) is an application that allows people to understand their future wealth and when they can retire.
+Cast (short for **Forecast**) helps visualize how your wealth could grow over time and estimates when you might reach financial independence. It is entirely client side and uses vanilla JavaScript with [Chart.js](https://www.chartjs.org/) and Google Charts.
 
-The UI is mainly composed of a line graph with the evolution of the wealth and a section where the users can specify the various assets they have.
-* The graph should  have 3 lines: best case scenario, average, worst case scenario
-* In the asset part, we can imagine a vertical list of cards that have the icon of the asset and a name. A card can be opened and editable. When edited, the user can:
-    * Change the icon of the asset
-    * Specify its name 
-    * Specify its type (cash, investing account, real estate)
-    * Specify monthly expected increase in value - this can be both in absolute terms or in percentage, and in 3 scenarios
-    * Specify eventual dividends/rental income, also this can be both in absolute terms or in percentage and in 3 scenarios
-    * Specify compounding: if daily/weekly/monthly/yearly
-* There should be an add button that will allow the user to add a new
-* A different section of the app should allow the user to specify “flows”: flow of money from one asset to another.
+## Features
 
-Any operation will result in the update of the main graph.
-There should also be a section in which the user can write how much they spend yearly. Using the 4% rule (time to retire = yearly expenses / 4%), the main graph should also highlight the point at which the user can retire. Below the graph, we can specify “X” years to retirement. 
+- **Interactive forecast graph** – A line chart displays best, average and worst case projections for the total value of your assets. You can choose the number of years to display.
+- **Asset management** – Add your assets (cash, investment accounts, real estate, etc.) with starting value, expected increase, compounding options and portfolio weight. Selecting an asset shows its individual growth on the graph.
+- **Money flows** – Define recurring transfers from one asset to another. A Sankey diagram visualises these flows.
+- **Expense tracking and retirement estimate** – Enter yearly expenses to calculate your _time to retire_ based on the 4% rule. The forecast table highlights when each scenario reaches financial independence.
+- **Asset distribution** – A pie chart summarises how your total wealth is split between assets.
+- **Local storage persistence** – Your data is saved automatically in the browser.
 
-This project should be built for the web, so only web technologies should be used. Prefer a clean approach with vanilla JS (no React, no Angular, etc.).
-For now, we can just use localstorage to store data
+## Running
+
+Open `index.html` in a modern browser. No server is required, but you can run a simple static server if you prefer:
+
+```bash
+# Using Python
+python3 -m http.server
+```
+Then visit `http://localhost:8000`.
+
+## Technology
+
+- **Vanilla JavaScript** – no frameworks.
+- **Chart.js** – line and pie charts.
+- **Google Charts** – Sankey diagram for money flows.
+- **Font Awesome** – icons.
+
+All data stays in your browser; there is no backend or authentication.
