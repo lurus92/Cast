@@ -454,8 +454,8 @@ select {
 }
 
 @media (max-width: 768px) {
-    .container { padding-bottom: 80px; }
-    .tab-section { display: none; }
+    .container { padding:0; padding-bottom: 80px; }
+    .tab-section { border-radius: 0; display: none; }
     .tab-section.active { display: block; height: calc(100vh - 150px); overflow-y: auto; }
     .tab-bar { display: flex; }
     #add-asset.fab,
