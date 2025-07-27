@@ -37,12 +37,16 @@ const incAvg = document.getElementById('inc-avg');
 const incWorst = document.getElementById('inc-worst');
 const incType = document.getElementById('inc-type');
 const compoundInput = document.getElementById('asset-compound');
-const weightInput = document.getElementById('asset-weight');
 const compToggle = document.getElementById('asset-comp-toggle');
 const assetAddFlowBtn = document.getElementById('asset-add-flow');
+const assetFlowList = document.getElementById('asset-flow-list');
+const compFreqLabel = document.getElementById('compound-frequency');
 const saveAsset = document.getElementById('save-asset');
 const cancelAsset = document.getElementById('cancel-asset');
 const deleteAssetBtn = document.getElementById('delete-asset');
+
+compToggle.onchange = updateCompoundVisibility;
+updateCompoundVisibility();
 
 const flowList = document.getElementById('flow-list');
 const addFlowBtn = document.getElementById('add-flow');
@@ -111,7 +115,7 @@ function renderAssets() {
 
         assetList.appendChild(div);
     });
-    const total = assets.reduce((s,a)=>s+a.value*(a.weight??100)/100,0);
+    const total = assets.reduce((s,a)=>s+a.value,0);
     totalWealthDiv.textContent = `Total wealth: ${formatNumber(total)}`;
     renderFlows();
     updatePieChart();
@@ -132,6 +136,26 @@ function renderFlows() {
     updateSankey();
 }
 
+function renderAssetFlows(index){
+    assetFlowList.innerHTML = '';
+    if(index==null) return;
+    flows.forEach((flow,i)=>{
+        if(flow.from===index || flow.to===index){
+            const div = document.createElement('div');
+            div.className = 'asset';
+            const from = flow.from>=0 ? (assets[flow.from]?.name||'') : OUTSIDE_NAME;
+            const to = flow.to>=0 ? (assets[flow.to]?.name||'') : OUTSIDE_NAME;
+            div.textContent = `${from} -> ${to}: ${flow.amount}`;
+            div.onclick = () => openFlowForm(i);
+            assetFlowList.appendChild(div);
+        }
+    });
+}
+
+function updateCompoundVisibility(){
+    compFreqLabel.style.display = compToggle.checked ? 'flex' : 'none';
+}
+
 function openForm(index) {
     if (index != null) {
         editIndex = index;
@@ -145,10 +169,11 @@ function openForm(index) {
         incWorst.value = a.incWorst;
         incType.value = a.incType || 'abs';
         compoundInput.value = a.compound;
-        weightInput.value = a.weight ?? 100;
         compToggle.checked = a.compoundEnabled !== false;
+        updateCompoundVisibility();
         deleteAssetBtn.classList.remove('hidden');
         assetAddFlowBtn.classList.remove('hidden');
+        renderAssetFlows(index);
     } else {
         editIndex = null;
         formTitle.textContent = 'New Asset';
@@ -160,10 +185,11 @@ function openForm(index) {
         incWorst.value = '';
         incType.value = 'abs';
         compoundInput.value = 'monthly';
-        weightInput.value = 100;
         compToggle.checked = true;
+        updateCompoundVisibility();
         deleteAssetBtn.classList.add('hidden');
-        assetAddFlowBtn.classList.add('hidden');
+        assetAddFlowBtn.classList.remove('hidden');
+        renderAssetFlows(null);
     }
     formModal.classList.remove('hidden');
 }
@@ -181,7 +207,6 @@ function formData() {
         incWorst: parseFloat(incWorst.value) || 0,
         incType: incType.value,
         compound: compoundInput.value,
-        weight: parseFloat(weightInput.value) || 100,
         compoundEnabled: compToggle.checked,
     };
 }
@@ -331,7 +356,7 @@ function forecast(months) {
     const wVals = assets.map(a => a.value);
     const startVals = assets.map(a => a.value);
 
-    best[0] = assets.reduce((s,a)=>s+a.value*(a.weight??100)/100,0);
+    best[0] = assets.reduce((s,a)=>s+a.value,0);
     avg[0] = best[0];
     worst[0] = best[0];
 
@@ -375,9 +400,9 @@ function forecast(months) {
                 wVals[f.to]+=f.amount;
             }
         });
-        best[i] = bVals.reduce((s,v,idx)=>s+v*(assets[idx].weight??100)/100,0);
-        avg[i] = aVals.reduce((s,v,idx)=>s+v*(assets[idx].weight??100)/100,0);
-        worst[i] = wVals.reduce((s,v,idx)=>s+v*(assets[idx].weight??100)/100,0);
+        best[i] = bVals.reduce((s,v)=>s+v,0);
+        avg[i] = aVals.reduce((s,v)=>s+v,0);
+        worst[i] = wVals.reduce((s,v)=>s+v,0);
     }
     return {best, avg, worst};
 }
@@ -514,7 +539,7 @@ function updateChart() {
 
 function updatePieChart(){
     const labels = assets.map(a=>a.name);
-    const data = assets.map(a=>a.value*(a.weight??100)/100);
+    const data = assets.map(a=>a.value);
     const colors = assets.map((a,i)=>{
         if(!a.color) a.color = colorPalette[i % colorPalette.length];
         return a.color;
