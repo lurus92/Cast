@@ -26,14 +26,11 @@ const valueInput = document.getElementById('asset-value');
 const incBest = document.getElementById('inc-best');
 const incAvg = document.getElementById('inc-avg');
 const incWorst = document.getElementById('inc-worst');
-const divBest = document.getElementById('div-best');
-const divAvg = document.getElementById('div-avg');
-const divWorst = document.getElementById('div-worst');
 const incType = document.getElementById('inc-type');
-const divType = document.getElementById('div-type');
 const compoundInput = document.getElementById('asset-compound');
 const weightInput = document.getElementById('asset-weight');
 const compToggle = document.getElementById('asset-comp-toggle');
+const assetAddFlowBtn = document.getElementById('asset-add-flow');
 const saveAsset = document.getElementById('save-asset');
 const cancelAsset = document.getElementById('cancel-asset');
 const deleteAssetBtn = document.getElementById('delete-asset');
@@ -115,15 +112,12 @@ function openForm(index) {
         incBest.value = a.incBest;
         incAvg.value = a.incAvg;
         incWorst.value = a.incWorst;
-        divBest.value = a.divBest;
-        divAvg.value = a.divAvg;
-        divWorst.value = a.divWorst;
         incType.value = a.incType || 'abs';
-        divType.value = a.divType || 'abs';
         compoundInput.value = a.compound;
         weightInput.value = a.weight ?? 100;
         compToggle.checked = a.compoundEnabled !== false;
         deleteAssetBtn.classList.remove('hidden');
+        assetAddFlowBtn.classList.remove('hidden');
     } else {
         editIndex = null;
         formTitle.textContent = 'New Asset';
@@ -133,15 +127,12 @@ function openForm(index) {
         incBest.value = '';
         incAvg.value = '';
         incWorst.value = '';
-        divBest.value = '';
-        divAvg.value = '';
-        divWorst.value = '';
         incType.value = 'abs';
-        divType.value = 'abs';
         compoundInput.value = 'monthly';
         weightInput.value = 100;
         compToggle.checked = true;
         deleteAssetBtn.classList.add('hidden');
+        assetAddFlowBtn.classList.add('hidden');
     }
     formModal.classList.remove('hidden');
 }
@@ -157,11 +148,7 @@ function formData() {
         incBest: parseFloat(incBest.value) || 0,
         incAvg: parseFloat(incAvg.value) || 0,
         incWorst: parseFloat(incWorst.value) || 0,
-        divBest: parseFloat(divBest.value) || 0,
-        divAvg: parseFloat(divAvg.value) || 0,
-        divWorst: parseFloat(divWorst.value) || 0,
         incType: incType.value,
-        divType: divType.value,
         compound: compoundInput.value,
         weight: parseFloat(weightInput.value) || 100,
         compoundEnabled: compToggle.checked,
@@ -199,6 +186,13 @@ expensesInput.onchange = () => {
     updateChart();
 };
 yearsInput.onchange = updateChart;
+
+assetAddFlowBtn.onclick = () => {
+    if(editIndex != null){
+        openFlowForm(null);
+        flowFrom.value = editIndex;
+    }
+};
 
 deleteAssetBtn.onclick = () => {
     if(editIndex != null){
@@ -311,25 +305,6 @@ function forecast(months) {
                 bVals[idx] += asset.incBest;
                 aVals[idx] += asset.incAvg;
                 wVals[idx] += asset.incWorst;
-            }
-            // apply dividends
-            if(asset.divType === 'pct'){
-                const bRate = asset.divBest/100/12;
-                const aRate = asset.divAvg/100/12;
-                const wRate = asset.divWorst/100/12;
-                if(asset.compoundEnabled!==false){
-                    bVals[idx] += bVals[idx]*bRate;
-                    aVals[idx] += aVals[idx]*aRate;
-                    wVals[idx] += wVals[idx]*wRate;
-                } else {
-                    bVals[idx] += start*bRate;
-                    aVals[idx] += start*aRate;
-                    wVals[idx] += start*wRate;
-                }
-            } else {
-                bVals[idx] += asset.divBest;
-                aVals[idx] += asset.divAvg;
-                wVals[idx] += asset.divWorst;
             }
         });
         flows.forEach(f=>{
