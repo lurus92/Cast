@@ -507,6 +507,7 @@ function updatePieChart(){
     pieChart = new Chart(ctx, {
         type: 'pie',
         data: {labels, datasets:[{data, backgroundColor: colors}]},
+        options: {plugins: {legend: {display: false}}}
     });
 }
 
