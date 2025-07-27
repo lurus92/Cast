@@ -242,6 +242,65 @@ h3 {
     margin-top: 1rem;
 }
 
+.flow-section {
+    margin-bottom: 1.5rem;
+}
+
+.flow-section h3 {
+    font-size: 0.875rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.flow-section .flow-total {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.flow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.flow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+.flow .flow-arrow {
+    color: #94a3b8;
+    width: 1.5rem;
+    text-align: center;
+}
+
+.flow .flow-amount {
+    margin-left: auto;
+    font-weight: 500;
+}
+
+.flow .flow-amount.income {
+    color: #22c55e;
+}
+
+.flow .flow-amount.internal {
+    color: #64748b;
+}
+
+.flow .flow-amount.outgoing {
+    color: #ef4444;
+}
+
 .asset {
     border: 1px solid #e2e8f0;
     padding: 1rem;
@@ -253,6 +312,17 @@ h3 {
     align-items: center;
     gap: 0.75rem;
     justify-content: space-between;
+}
+
+.asset .asset-percentage {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.asset i.asset-type-icon {
+    width: 1.5rem;
+    text-align: center;
+    color: #475569;
 }
 
 .asset-info {
@@ -468,6 +538,24 @@ select {
     background-position: right 1rem center;
     background-size: 1em;
     padding-right: 2.5rem;
+}
+
+/* Asset type icons */
+.asset-type-select-wrapper {
+    position: relative;
+}
+
+.asset-type-select-wrapper i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #475569;
+    pointer-events: none;
+}
+
+.asset-type-select-wrapper select {
+    padding-left: 2.5rem;
 }
 
 /* Form group spacing in modal */

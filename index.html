@@ -61,7 +61,20 @@
         <div id="flows-section" class="tab-section">
             <h2>Flows</h2>
             <div id="flow-sankey" style="width:100%;height:300px;"></div>
-            <div id="flow-list"></div>
+            <div id="income-flows" class="flow-section">
+                <h3>Income</h3>
+                <div class="flow-list"></div>
+                <div class="flow-total"></div>
+            </div>
+            <div id="internal-flows" class="flow-section">
+                <h3>Internal Movements</h3>
+                <div class="flow-list"></div>
+            </div>
+            <div id="outgoing-flows" class="flow-section">
+                <h3>Outgoing</h3>
+                <div class="flow-list"></div>
+                <div class="flow-total"></div>
+            </div>
             <button id="add-flow" class="fab"><i class="fa fa-plus"></i><span>Add Flow</span></button>
         </div>
         <div id="expenses-section" class="tab-section">
@@ -81,11 +94,14 @@
             <h3 id="form-title">New Asset</h3>
             <label>Name <input type="text" id="asset-name"></label>
             <label>Type
-                <select id="asset-type">
-                    <option value="cash">Cash</option>
-                    <option value="investing">Investing Account</option>
-                    <option value="realestate">Real Estate</option>
-                </select>
+                <div class="asset-type-select-wrapper">
+                    <i class="fa fa-money-bill"></i>
+                    <select id="asset-type">
+                        <option value="cash" data-icon="fa-money-bill">Cash</option>
+                        <option value="investing" data-icon="fa-chart-line">Investing Account</option>
+                        <option value="realestate" data-icon="fa-house">Real Estate</option>
+                    </select>
+                </div>
             </label>
             <label>Starting Value <input type="number" id="asset-value"></label>
             <label>Increase Type

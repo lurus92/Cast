@@ -8,6 +8,12 @@ const colorPalette = [
 ];
 const OUTSIDE_NAME = 'Outside Cast';
 
+const ASSET_TYPE_ICONS = {
+    cash: 'fa-money-bill',
+    investing: 'fa-chart-line',
+    realestate: 'fa-house'
+};
+
 function formatNumber(v){
     const abs = Math.abs(v);
     if(abs >= 1e6) return (v/1e6).toFixed(1) + 'M';
@@ -48,6 +54,13 @@ const deleteAssetBtn = document.getElementById('delete-asset');
 compToggle.onchange = updateCompoundVisibility;
 updateCompoundVisibility();
 
+// Handle asset type icon updates
+typeInput.onchange = () => {
+    const wrapper = typeInput.parentElement;
+    const icon = wrapper.querySelector('i');
+    icon.className = `fa ${ASSET_TYPE_ICONS[typeInput.value] || 'fa-question'} asset-type-icon`;
+};
+
 const flowList = document.getElementById('flow-list');
 const addFlowBtn = document.getElementById('add-flow');
 const flowModal = document.getElementById('flow-form');
@@ -81,6 +94,8 @@ function saveData() {
 function renderAssets() {
     assetList.innerHTML = '';
     let updated = false;
+    const total = assets.reduce((s,a)=>s+a.value,0);
+    
     assets.forEach((asset, index) => {
         if(!asset.color){
             asset.color = colorPalette[index % colorPalette.length];
@@ -92,13 +107,25 @@ function renderAssets() {
 
         const info = document.createElement('div');
         info.className = 'asset-info';
+        
         const colorBox = document.createElement('span');
         colorBox.className = 'asset-color';
         colorBox.style.background = asset.color;
+        
+        const typeIcon = document.createElement('i');
+        typeIcon.className = `fa ${ASSET_TYPE_ICONS[asset.type] || 'fa-question'} asset-type-icon`;
+        
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = `${asset.name} - ${asset.type}`;
+        nameSpan.textContent = asset.name;
+        
+        const percentageSpan = document.createElement('span');
+        percentageSpan.className = 'asset-percentage';
+        percentageSpan.textContent = ` (${((asset.value / total) * 100).toFixed(1)}%)`;
+        
         info.appendChild(colorBox);
+        info.appendChild(typeIcon);
         info.appendChild(nameSpan);
+        info.appendChild(percentageSpan);
 
         const edit = document.createElement('button');
         edit.className = 'edit-btn';
@@ -115,7 +142,7 @@ function renderAssets() {
 
         assetList.appendChild(div);
     });
-    const total = assets.reduce((s,a)=>s+a.value,0);
+    
     totalWealthDiv.textContent = `Total wealth: ${formatNumber(total)}`;
     renderFlows();
     updatePieChart();
@@ -123,16 +150,68 @@ function renderAssets() {
 }
 
 function renderFlows() {
-    flowList.innerHTML = '';
+    // Get flow sections
+    const incomeSection = document.querySelector('#income-flows .flow-list');
+    const internalSection = document.querySelector('#internal-flows .flow-list');
+    const outgoingSection = document.querySelector('#outgoing-flows .flow-list');
+    const incomeTotal = document.querySelector('#income-flows .flow-total');
+    const outgoingTotal = document.querySelector('#outgoing-flows .flow-total');
+    
+    // Clear all sections
+    incomeSection.innerHTML = '';
+    internalSection.innerHTML = '';
+    outgoingSection.innerHTML = '';
+    
+    let totalIncome = 0;
+    let totalOutgoing = 0;
+
     flows.forEach((flow, index) => {
         const div = document.createElement('div');
-        div.className = 'asset';
-        const from = flow.from>=0 ? (assets[flow.from]?.name||'') : OUTSIDE_NAME;
-        const to = flow.to>=0 ? (assets[flow.to]?.name||'') : OUTSIDE_NAME;
-        div.textContent = `${from} -> ${to}: ${flow.amount}`;
+        div.className = 'flow';
+        
+        const from = flow.from >= 0 ? (assets[flow.from]?.name||'') : OUTSIDE_NAME;
+        const to = flow.to >= 0 ? (assets[flow.to]?.name||'') : OUTSIDE_NAME;
+        
+        // Create flow elements
+        const fromText = document.createElement('span');
+        fromText.textContent = from;
+        
+        const arrow = document.createElement('i');
+        arrow.className = 'fa fa-arrow-right flow-arrow';
+        
+        const toText = document.createElement('span');
+        toText.textContent = to;
+        
+        const amount = document.createElement('span');
+        amount.textContent = formatNumber(flow.amount);
+        
+        // Determine flow type and add to appropriate section
+        if (flow.from === -1 && flow.to >= 0) {
+            // Income flow
+            amount.className = 'flow-amount income';
+            totalIncome += flow.amount;
+            div.append(fromText, arrow, toText, amount);
+            incomeSection.appendChild(div);
+        } else if (flow.from >= 0 && flow.to === -1) {
+            // Outgoing flow
+            amount.className = 'flow-amount outgoing';
+            totalOutgoing += flow.amount;
+            div.append(fromText, arrow, toText, amount);
+            outgoingSection.appendChild(div);
+        } else if (flow.from >= 0 && flow.to >= 0) {
+            // Internal flow
+            amount.className = 'flow-amount internal';
+            div.append(fromText, arrow, toText, amount);
+            internalSection.appendChild(div);
+        }
+        
         div.onclick = () => openFlowForm(index);
-        flowList.appendChild(div);
     });
+    
+    // Update totals
+    incomeTotal.textContent = `Total Income: ${formatNumber(totalIncome)}`;
+    outgoingTotal.textContent = `Total Outgoing: ${formatNumber(totalOutgoing)}`;
+    
     updateSankey();
 }
 
