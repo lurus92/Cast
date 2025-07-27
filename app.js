@@ -50,7 +50,12 @@ const cancelFlow = document.getElementById('cancel-flow');
 const deleteFlowBtn = document.getElementById('delete-flow');
 const sankeyDiv = document.getElementById('flow-sankey');
 let sankeyChart = null;
-google.charts.load('current', {'packages':['sankey']});
+let sankeyReady = false;
+google.charts.load('current', {packages:['sankey']});
+google.charts.setOnLoadCallback(() => {
+    sankeyReady = true;
+    updateSankey();
+});
 
 let editIndex = null;
 let editFlowIndex = null;
@@ -426,7 +431,7 @@ function updatePieChart(){
 }
 
 function updateSankey(){
-    if(!sankeyDiv) return;
+    if(!sankeyReady || !sankeyDiv) return;
     const data = new google.visualization.DataTable();
     data.addColumn('string','From');
     data.addColumn('string','To');
@@ -440,9 +445,6 @@ function updateSankey(){
     sankeyChart.draw(data, {width:'100%', height:300});
 }
 
-google.charts.setOnLoadCallback(updateSankey);
-
 renderAssets();
 updateChart();
 updatePieChart();
-updateSankey();
