@@ -64,7 +64,6 @@
                 </select>
             </label>
             <label>Starting Value <input type="number" id="asset-value"></label>
-            <label>Portfolio Weight (%) <input type="number" id="asset-weight" value="100" min="0" max="100"></label>
             <label>Increase Type
                 <select id="inc-type">
                     <option value="abs">Absolute (monthly)</option>
@@ -85,22 +84,28 @@
                     <input type="number" id="inc-worst" placeholder="Worst">
                 </label>
             </div>
-            <button id="asset-add-flow" type="button">Add Flow from this Asset</button>
-            <label class="toggle-switch">
-                <input type="checkbox" id="asset-comp-toggle" checked>
-                <span class="toggle-slider"></span>
+            <div id="asset-flow-list" class="asset-flow-list"></div>
+            <button id="asset-add-flow" type="button"><i class="fa fa-plus"></i> Add Flow</button>
+            <div class="toggle-row">
                 <span class="toggle-label">Enable Compounding</span>
-            </label>
-            <label>Compounding Frequency
+                <label class="toggle-switch">
+                    <input type="checkbox" id="asset-comp-toggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <label id="compound-frequency">
+                Compounding Frequency
                 <select id="asset-compound">
                     <option value="monthly">Monthly</option>
                     <option value="yearly">Yearly</option>
                 </select>
             </label>
 
-            <button id="delete-asset" class="danger hidden">Delete</button>
-            <button id="save-asset">Save</button>
-            <button id="cancel-asset">Cancel</button>
+            <div class="modal-actions">
+                <button id="delete-asset" class="danger hidden"><i class="fa fa-trash"></i></button>
+                <button id="save-asset"><i class="fa fa-check"></i> Save</button>
+                <button id="cancel-asset"><i class="fa fa-times"></i> Cancel</button>
+            </div>
         </div>
     </div>
 <div id="flow-form" class="modal hidden">
@@ -113,9 +118,11 @@
             <select id="flow-to"></select>
         </label>
         <label>Amount per month <input type="number" id="flow-amount"></label>
-        <button id="delete-flow" class="danger hidden">Delete</button>
-        <button id="save-flow">Save</button>
-        <button id="cancel-flow">Cancel</button>
+        <div class="modal-actions">
+            <button id="delete-flow" class="danger hidden"><i class="fa fa-trash"></i></button>
+            <button id="save-flow"><i class="fa fa-check"></i> Save</button>
+            <button id="cancel-flow"><i class="fa fa-times"></i> Cancel</button>
+        </div>
     </div>
 </div>
     <script src="app.js"></script>
