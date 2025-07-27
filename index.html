@@ -10,7 +10,9 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 <body>
-    <h1>Cast</h1>
+    <header class="title-bar">
+        <h1>Cast</h1>
+    </header>
     <div class="container">
         <div id="forecast-section" class="tab-section">
             <canvas id="chart"></canvas>
@@ -24,6 +26,7 @@
             </div>
             <table id="year-table"></table>
         </div>
+        <div id="side-sections">
         <div id="assets-section" class="tab-section">
             <h2>Assets</h2>
             <div id="total-wealth"></div>
@@ -35,12 +38,13 @@
             <h2>Flows</h2>
             <div id="flow-sankey" style="width:100%;height:300px;"></div>
             <div id="flow-list"></div>
-            <button id="add-flow">Add Flow</button>
+            <button id="add-flow" class="fab"><i class="fa fa-plus"></i><span>Add Flow</span></button>
         </div>
         <div id="expenses-section" class="tab-section">
             <h2>Yearly Expenses</h2>
             <input type="number" id="expenses" placeholder="Yearly expenses" />
         </div>
+        </div> <!-- side-sections -->
     </div>
     <div class="tab-bar">
         <button data-tab="forecast-section" class="active"><i class="fa fa-chart-line"></i><span>Forecast</span></button>

@@ -7,6 +7,28 @@ body {
     line-height: 1.5;
 }
 
+.title-bar {
+    background: #ffffff;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.title-bar h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .title-bar h1 { text-align: center; }
+}
+
+@media (min-width: 769px) {
+    .title-bar h1 { text-align: left; }
+}
+
 .container {
     max-width: 1200px;
     margin: auto;
@@ -401,12 +423,20 @@ select {
     position: relative;
 }
 
+#side-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    flex: 1;
+}
+
 @media (max-width: 768px) {
     .container { padding-bottom: 80px; }
     .tab-section { display: none; }
-    .tab-section.active { display: block; }
+    .tab-section.active { display: block; height: calc(100vh - 150px); overflow-y: auto; }
     .tab-bar { display: flex; }
-    #add-asset.fab {
+    #add-asset.fab,
+    #add-flow.fab {
         position: fixed;
         bottom: 80px;
         right: 20px;
@@ -419,8 +449,9 @@ select {
         align-items: center;
         justify-content: center;
     }
-    #add-asset.fab span { display: none; }
-}
+    #add-asset.fab span,
+    #add-flow.fab span { display: none; }
+    }
 
 @media (min-width: 769px) {
     .container {
@@ -430,9 +461,8 @@ select {
     }
     .tab-section { display: block; }
     .tab-bar { display: none; }
-    #forecast-section { flex: 2; }
-    #assets-section,
-    #flows-section,
-    #expenses-section { flex: 1; }
+    .container { align-items: flex-start; }
+    #forecast-section { flex: 2; margin-right: 2rem; }
+    #side-sections { flex: 1; }
 }
 

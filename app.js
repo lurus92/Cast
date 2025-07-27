@@ -8,6 +8,13 @@ const colorPalette = [
 ];
 const OUTSIDE_NAME = 'Outside Cast';
 
+function formatNumber(v){
+    const abs = Math.abs(v);
+    if(abs >= 1e6) return (v/1e6).toFixed(1) + 'M';
+    if(abs >= 1e3) return (v/1e3).toFixed(1) + 'K';
+    return v.toFixed(0);
+}
+
 const assetList = document.getElementById('asset-list');
 const addAssetBtn = document.getElementById('add-asset');
 const totalWealthDiv = document.getElementById('total-wealth');
@@ -81,7 +88,7 @@ function renderAssets() {
         assetList.appendChild(div);
     });
     const total = assets.reduce((s,a)=>s+a.value*(a.weight??100)/100,0);
-    totalWealthDiv.textContent = `Total wealth: ${total.toFixed(2)}`;
+    totalWealthDiv.textContent = `Total wealth: ${formatNumber(total)}`;
     renderFlows();
     updatePieChart();
     if(updated) saveData();
@@ -358,7 +365,19 @@ function updateChart() {
                 x: {
                     type: 'linear',
                     title: {display: true, text: 'Years'},
-                    ticks: {stepSize: 1}
+                    ticks: { stepSize: 1 }
+                },
+                y: {
+                    ticks: {
+                        callback: value => formatNumber(value)
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.dataset.label + ': ' + formatNumber(ctx.parsed.y)
+                    }
                 }
             }
         }
@@ -384,7 +403,7 @@ function updateChart() {
         const b = data.best[Math.min(y*12,data.best.length-1)];
         const a = data.avg[Math.min(y*12,data.avg.length-1)];
         const w = data.worst[Math.min(y*12,data.worst.length-1)];
-        row.innerHTML = `<td>${y}</td><td>${b.toFixed(2)}</td><td>${a.toFixed(2)}</td><td>${w.toFixed(2)}</td>`;
+        row.innerHTML = `<td>${y}</td><td>${formatNumber(b)}</td><td>${formatNumber(a)}</td><td>${formatNumber(w)}</td>`;
         yearTable.appendChild(row);
     }
 }
@@ -417,7 +436,8 @@ function updateSankey(){
         if(from && to) data.addRow([from,to,f.amount]);
     });
     if(!sankeyChart) sankeyChart = new google.visualization.Sankey(sankeyDiv);
-    sankeyChart.draw(data, {width:'100%', height:300});
+    const width = sankeyDiv.clientWidth;
+    sankeyChart.draw(data, {width, height:300});
 }
 
 renderAssets();
@@ -445,3 +465,4 @@ tabButtons.forEach(btn=>{
 
 // Show default tab
 showTab('forecast-section');
+window.addEventListener('resize', updateSankey);
