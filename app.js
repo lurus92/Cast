@@ -6,7 +6,8 @@ const colorPalette = [
     '#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9966FF',
     '#FF9F40', '#3F51B5', '#009688', '#795548', '#607D8B'
 ];
-const OUTSIDE_NAME = 'Outside Cast';
+const OUTSIDE_INCOME = 'Outside Cast (income)';
+const OUTSIDE_EXPENSE = 'Outside Cast (expense)';
 
 const ASSET_TYPE_ICONS = {
     cash: 'fa-money-bill',
@@ -169,8 +170,10 @@ function renderFlows() {
         const div = document.createElement('div');
         div.className = 'flow';
         
-        const from = flow.from >= 0 ? (assets[flow.from]?.name||'') : OUTSIDE_NAME;
-        const to = flow.to >= 0 ? (assets[flow.to]?.name||'') : OUTSIDE_NAME;
+        const from = flow.from >= 0 ? (assets[flow.from]?.name||'') : 
+                    (flow.to >= 0 ? OUTSIDE_INCOME : OUTSIDE_EXPENSE);
+        const to = flow.to >= 0 ? (assets[flow.to]?.name||'') : 
+                  (flow.from >= 0 ? OUTSIDE_EXPENSE : OUTSIDE_INCOME);
         
         // Create flow elements
         const fromText = document.createElement('span');
@@ -222,8 +225,10 @@ function renderAssetFlows(index){
         if(flow.from===index || flow.to===index){
             const div = document.createElement('div');
             div.className = 'asset';
-            const from = flow.from>=0 ? (assets[flow.from]?.name||'') : OUTSIDE_NAME;
-            const to = flow.to>=0 ? (assets[flow.to]?.name||'') : OUTSIDE_NAME;
+            const from = flow.from>=0 ? (assets[flow.from]?.name||'') : 
+                        (flow.to >= 0 ? OUTSIDE_INCOME : OUTSIDE_EXPENSE);
+            const to = flow.to>=0 ? (assets[flow.to]?.name||'') : 
+                      (flow.from >= 0 ? OUTSIDE_EXPENSE : OUTSIDE_INCOME);
             div.textContent = `${from} -> ${to}: ${flow.amount}`;
             div.onclick = () => openFlowForm(i);
             assetFlowList.appendChild(div);
@@ -362,18 +367,28 @@ deleteAssetBtn.onclick = () => {
 function populateFlowSelects(){
     flowFrom.innerHTML = '';
     flowTo.innerHTML = '';
-    const outOpt1 = document.createElement('option');
-    outOpt1.value = -1; outOpt1.textContent = OUTSIDE_NAME;
-    const outOpt2 = outOpt1.cloneNode(true);
-    flowFrom.appendChild(outOpt1);
-    flowTo.appendChild(outOpt2);
+    
+    // Add "Outside Cast (income)" only to "From" select
+    const outIncomeOpt = document.createElement('option');
+    outIncomeOpt.value = -1;
+    outIncomeOpt.textContent = OUTSIDE_INCOME;
+    flowFrom.appendChild(outIncomeOpt);
+    
+    // Add assets
     assets.forEach((a,i)=>{
         const opt1 = document.createElement('option');
-        opt1.value = i; opt1.textContent = a.name;
+        opt1.value = i;
+        opt1.textContent = a.name;
         const opt2 = opt1.cloneNode(true);
         flowFrom.appendChild(opt1);
         flowTo.appendChild(opt2);
     });
+    
+    // Add "Outside Cast (expense)" only to "To" select
+    const outExpenseOpt = document.createElement('option');
+    outExpenseOpt.value = -1;
+    outExpenseOpt.textContent = OUTSIDE_EXPENSE;
+    flowTo.appendChild(outExpenseOpt);
 }
 
 function openFlowForm(index){
@@ -640,8 +655,10 @@ function updateSankey(){
     data.addColumn('string','To');
     data.addColumn('number','Amount');
     flows.forEach(f=>{
-        const from = f.from>=0 ? (assets[f.from]?.name||'') : OUTSIDE_NAME;
-        const to = f.to>=0 ? (assets[f.to]?.name||'') : OUTSIDE_NAME;
+        const from = f.from>=0 ? (assets[f.from]?.name||'') : 
+                   OUTSIDE_INCOME;
+        const to = f.to>=0 ? (assets[f.to]?.name||'') : 
+                 OUTSIDE_EXPENSE;
         if(from && to) data.addRow([from,to,f.amount]);
     });
     if(!sankeyChart) sankeyChart = new google.visualization.Sankey(sankeyDiv);
