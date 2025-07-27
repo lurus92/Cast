@@ -6,6 +6,7 @@ const colorPalette = [
     '#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9966FF',
     '#FF9F40', '#3F51B5', '#009688', '#795548', '#607D8B'
 ];
+const OUTSIDE_NAME = 'Outside Cast';
 
 const assetList = document.getElementById('asset-list');
 const addAssetBtn = document.getElementById('add-asset');
@@ -47,6 +48,9 @@ const flowAmount = document.getElementById('flow-amount');
 const saveFlow = document.getElementById('save-flow');
 const cancelFlow = document.getElementById('cancel-flow');
 const deleteFlowBtn = document.getElementById('delete-flow');
+const sankeyDiv = document.getElementById('flow-sankey');
+let sankeyChart = null;
+google.charts.load('current', {'packages':['sankey']});
 
 let editIndex = null;
 let editFlowIndex = null;
@@ -86,12 +90,13 @@ function renderFlows() {
     flows.forEach((flow, index) => {
         const div = document.createElement('div');
         div.className = 'asset';
-        const from = assets[flow.from]?.name || '';
-        const to = assets[flow.to]?.name || '';
+        const from = flow.from>=0 ? (assets[flow.from]?.name||'') : OUTSIDE_NAME;
+        const to = flow.to>=0 ? (assets[flow.to]?.name||'') : OUTSIDE_NAME;
         div.textContent = `${from} -> ${to}: ${flow.amount}`;
         div.onclick = () => openFlowForm(index);
         flowList.appendChild(div);
     });
+    updateSankey();
 }
 
 function openForm(index) {
@@ -203,6 +208,11 @@ deleteAssetBtn.onclick = () => {
 function populateFlowSelects(){
     flowFrom.innerHTML = '';
     flowTo.innerHTML = '';
+    const outOpt1 = document.createElement('option');
+    outOpt1.value = -1; outOpt1.textContent = OUTSIDE_NAME;
+    const outOpt2 = outOpt1.cloneNode(true);
+    flowFrom.appendChild(outOpt1);
+    flowTo.appendChild(outOpt2);
     assets.forEach((a,i)=>{
         const opt1 = document.createElement('option');
         opt1.value = i; opt1.textContent = a.name;
@@ -243,6 +253,7 @@ saveFlow.onclick = () => {
     saveData();
     renderFlows();
     updateChart();
+    updateSankey();
     closeFlowForm();
 };
 
@@ -255,6 +266,7 @@ deleteFlowBtn.onclick = () => {
         saveData();
         renderFlows();
         updateChart();
+        updateSankey();
     }
     closeFlowForm();
 };
@@ -316,10 +328,20 @@ function forecast(months) {
             }
         });
         flows.forEach(f=>{
-            if(bVals[f.from]!=null && bVals[f.to]!=null){
+            const fromOk = f.from>=0 && bVals[f.from]!=null;
+            const toOk = f.to>=0 && bVals[f.to]!=null;
+            if(fromOk && toOk){
                 bVals[f.from]-=f.amount; bVals[f.to]+=f.amount;
                 aVals[f.from]-=f.amount; aVals[f.to]+=f.amount;
                 wVals[f.from]-=f.amount; wVals[f.to]+=f.amount;
+            } else if(fromOk && f.to===-1){
+                bVals[f.from]-=f.amount;
+                aVals[f.from]-=f.amount;
+                wVals[f.from]-=f.amount;
+            } else if(toOk && f.from===-1){
+                bVals[f.to]+=f.amount;
+                aVals[f.to]+=f.amount;
+                wVals[f.to]+=f.amount;
             }
         });
         best[i] = bVals.reduce((s,v,idx)=>s+v*(assets[idx].weight??100)/100,0);
@@ -403,6 +425,24 @@ function updatePieChart(){
     });
 }
 
+function updateSankey(){
+    if(!sankeyDiv) return;
+    const data = new google.visualization.DataTable();
+    data.addColumn('string','From');
+    data.addColumn('string','To');
+    data.addColumn('number','Amount');
+    flows.forEach(f=>{
+        const from = f.from>=0 ? (assets[f.from]?.name||'') : OUTSIDE_NAME;
+        const to = f.to>=0 ? (assets[f.to]?.name||'') : OUTSIDE_NAME;
+        if(from && to) data.addRow([from,to,f.amount]);
+    });
+    if(!sankeyChart) sankeyChart = new google.visualization.Sankey(sankeyDiv);
+    sankeyChart.draw(data, {width:'100%', height:300});
+}
+
+google.charts.setOnLoadCallback(updateSankey);
+
 renderAssets();
 updateChart();
 updatePieChart();
+updateSankey();
