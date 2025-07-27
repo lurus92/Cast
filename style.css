@@ -86,10 +86,14 @@ body {
     margin-bottom: 0.75rem;
 }
 
-#asset-list {
+#asset-list, #flow-list {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+#flow-list {
+    margin-top: 1rem;
 }
 
 .asset {
@@ -205,9 +209,6 @@ body {
     display: none;
 }
 
-#flow-list {
-    margin-top: 1rem;
-}
 
 .danger {
     background: #ef4444;
