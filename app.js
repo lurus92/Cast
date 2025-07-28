@@ -519,9 +519,9 @@ const MAX_RETIRE_YEARS = 100;
 function updateChart() {
     const years = parseInt(yearsInput.value) || 20;
     const months = years * 12;
-    const data = selectedAssetIndex!=null ? forecastAsset(selectedAssetIndex, months) : forecast(months);
+    const data = forecast(months);
     const retireMonths = MAX_RETIRE_YEARS * 12;
-    const retireData = selectedAssetIndex!=null ? forecastAsset(selectedAssetIndex, retireMonths) : forecast(retireMonths);
+    const retireData = forecast(retireMonths);
 
     const bestPts = data.best.map((v,i)=>({x:i/12, y:v}));
     const avgPts = data.avg.map((v,i)=>({x:i/12, y:v}));
