@@ -1,4 +1,6 @@
 let assets = JSON.parse(localStorage.getItem('assets') || '[]');
+// Ensure visibility flag exists
+assets.forEach(a => { if(a.visible === undefined) a.visible = true; });
 let flows = JSON.parse(localStorage.getItem('flows') || '[]');
 let expenses = parseFloat(localStorage.getItem('expenses')) || 0;
 
@@ -95,8 +97,9 @@ function saveData() {
 function renderAssets() {
     assetList.innerHTML = '';
     let updated = false;
-    const total = assets.reduce((s,a)=>s+a.value,0);
-    
+    const visibleAssets = assets.filter(a => a.visible !== false);
+    const total = visibleAssets.reduce((s,a)=>s+a.value,0);
+
     assets.forEach((asset, index) => {
         if(!asset.color){
             asset.color = colorPalette[index % colorPalette.length];
@@ -108,22 +111,32 @@ function renderAssets() {
 
         const info = document.createElement('div');
         info.className = 'asset-info';
-        
-        const colorBox = document.createElement('span');
-        colorBox.className = 'asset-color';
-        colorBox.style.background = asset.color;
-        
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'asset-checkbox';
+        checkbox.checked = asset.visible !== false;
+        checkbox.style.accentColor = asset.color;
+        checkbox.onchange = (e) => {
+            e.stopPropagation();
+            asset.visible = checkbox.checked;
+            saveData();
+            renderAssets();
+            updateChart();
+        };
+
         const typeIcon = document.createElement('i');
         typeIcon.className = `fa ${ASSET_TYPE_ICONS[asset.type] || 'fa-question'} asset-type-icon`;
-        
+
         const nameSpan = document.createElement('span');
         nameSpan.textContent = asset.name;
-        
+
         const percentageSpan = document.createElement('span');
         percentageSpan.className = 'asset-percentage';
-        percentageSpan.textContent = ` (${((asset.value / total) * 100).toFixed(1)}%)`;
-        
-        info.appendChild(colorBox);
+        const pct = asset.visible !== false && total > 0 ? ((asset.value / total) * 100).toFixed(1) : '0.0';
+        percentageSpan.textContent = ` (${pct}%)`;
+
+        info.appendChild(checkbox);
         info.appendChild(typeIcon);
         info.appendChild(nameSpan);
         info.appendChild(percentageSpan);
@@ -167,6 +180,10 @@ function renderFlows() {
     let totalOutgoing = 0;
 
     flows.forEach((flow, index) => {
+        if((flow.from >= 0 && assets[flow.from]?.visible === false) ||
+           (flow.to >= 0 && assets[flow.to]?.visible === false)){
+            return; // hide flows involving hidden assets
+        }
         const div = document.createElement('div');
         div.className = 'flow';
         
@@ -445,17 +462,18 @@ function forecast(months) {
     const avg = Array(months+1).fill(0);
     const worst = Array(months+1).fill(0);
 
-    const bVals = assets.map(a => a.value);
-    const aVals = assets.map(a => a.value);
-    const wVals = assets.map(a => a.value);
-    const startVals = assets.map(a => a.value);
+    const bVals = assets.map(a => a.visible !== false ? a.value : 0);
+    const aVals = assets.map(a => a.visible !== false ? a.value : 0);
+    const wVals = assets.map(a => a.visible !== false ? a.value : 0);
+    const startVals = assets.map(a => a.visible !== false ? a.value : 0);
 
-    best[0] = assets.reduce((s,a)=>s+a.value,0);
+    best[0] = bVals.reduce((s,v)=>s+v,0);
     avg[0] = best[0];
     worst[0] = best[0];
 
     for (let i=1;i<=months;i++) {
         assets.forEach((asset, idx)=>{
+            if(asset.visible === false) return;
             const start = startVals[idx];
             // apply increase
             if(asset.incType === 'pct'){
@@ -478,8 +496,8 @@ function forecast(months) {
             }
         });
         flows.forEach(f=>{
-            const fromOk = f.from>=0 && bVals[f.from]!=null;
-            const toOk = f.to>=0 && bVals[f.to]!=null;
+            const fromOk = f.from>=0 && assets[f.from]?.visible!==false;
+            const toOk = f.to>=0 && assets[f.to]?.visible!==false;
             if(fromOk && toOk){
                 bVals[f.from]-=f.amount; bVals[f.to]+=f.amount;
                 aVals[f.from]-=f.amount; aVals[f.to]+=f.amount;
@@ -506,17 +524,18 @@ function forecastAsset(index, months){
     const avg = Array(months+1).fill(0);
     const worst = Array(months+1).fill(0);
 
-    const bVals = assets.map(a => a.value);
-    const aVals = assets.map(a => a.value);
-    const wVals = assets.map(a => a.value);
-    const startVals = assets.map(a => a.value);
+    const bVals = assets.map(a => a.visible !== false ? a.value : 0);
+    const aVals = assets.map(a => a.visible !== false ? a.value : 0);
+    const wVals = assets.map(a => a.visible !== false ? a.value : 0);
+    const startVals = assets.map(a => a.visible !== false ? a.value : 0);
 
-    best[0] = bVals[index];
-    avg[0] = aVals[index];
-    worst[0] = wVals[index];
+    best[0] = assets[index].visible !== false ? bVals[index] : 0;
+    avg[0] = assets[index].visible !== false ? aVals[index] : 0;
+    worst[0] = assets[index].visible !== false ? wVals[index] : 0;
 
     for (let i=1;i<=months;i++) {
         assets.forEach((asset, idx)=>{
+            if(asset.visible === false) return;
             const start = startVals[idx];
             if(asset.incType === 'pct'){
                 const bRate = asset.incBest/100/12;
@@ -538,8 +557,8 @@ function forecastAsset(index, months){
             }
         });
         flows.forEach(f=>{
-            const fromOk = f.from>=0 && bVals[f.from]!=null;
-            const toOk = f.to>=0 && bVals[f.to]!=null;
+            const fromOk = f.from>=0 && assets[f.from]?.visible!==false;
+            const toOk = f.to>=0 && assets[f.to]?.visible!==false;
             if(fromOk && toOk){
                 bVals[f.from]-=f.amount; bVals[f.to]+=f.amount;
                 aVals[f.from]-=f.amount; aVals[f.to]+=f.amount;
@@ -632,9 +651,10 @@ function updateChart() {
 }
 
 function updatePieChart(){
-    const labels = assets.map(a=>a.name);
-    const data = assets.map(a=>a.value);
-    const colors = assets.map((a,i)=>{
+    const visible = assets.filter(a => a.visible !== false);
+    const labels = visible.map(a=>a.name);
+    const data = visible.map(a=>a.value);
+    const colors = visible.map((a,i)=>{
         if(!a.color) a.color = colorPalette[i % colorPalette.length];
         return a.color;
     });
@@ -655,9 +675,11 @@ function updateSankey(){
     data.addColumn('string','To');
     data.addColumn('number','Amount');
     flows.forEach(f=>{
-        const from = f.from>=0 ? (assets[f.from]?.name||'') : 
+        if((f.from>=0 && assets[f.from]?.visible===false) ||
+           (f.to>=0 && assets[f.to]?.visible===false)) return;
+        const from = f.from>=0 ? (assets[f.from]?.name||'') :
                    OUTSIDE_INCOME;
-        const to = f.to>=0 ? (assets[f.to]?.name||'') : 
+        const to = f.to>=0 ? (assets[f.to]?.name||'') :
                  OUTSIDE_EXPENSE;
         if(from && to) data.addRow([from,to,f.amount]);
     });
