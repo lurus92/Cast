@@ -34,7 +34,6 @@ const retireWorstSpan = document.getElementById('retire-worst');
 const yearTable = document.getElementById('year-table');
 const yearsInput = document.getElementById('years');
 
-let selectedAssetIndex = null;
 
 const formModal = document.getElementById('asset-form');
 const formTitle = document.getElementById('form-title');
@@ -107,7 +106,6 @@ function renderAssets() {
         }
         const div = document.createElement('div');
         div.className = 'asset';
-        if(index === selectedAssetIndex) div.classList.add('active');
 
         const info = document.createElement('div');
         info.className = 'asset-info';
@@ -148,11 +146,6 @@ function renderAssets() {
 
         div.appendChild(info);
         div.appendChild(edit);
-        div.onclick = () => {
-            selectedAssetIndex = selectedAssetIndex === index ? null : index;
-            updateChart();
-            renderAssets();
-        };
 
         assetList.appendChild(div);
     });
@@ -372,8 +365,6 @@ assetAddFlowBtn.onclick = () => {
 deleteAssetBtn.onclick = () => {
     if(editIndex != null){
         assets.splice(editIndex,1);
-        if(selectedAssetIndex === editIndex) selectedAssetIndex = null;
-        else if(selectedAssetIndex > editIndex) selectedAssetIndex--;
         saveData();
         renderAssets();
         updateChart();
@@ -519,66 +510,6 @@ function forecast(months) {
     return {best, avg, worst};
 }
 
-function forecastAsset(index, months){
-    const best = Array(months+1).fill(0);
-    const avg = Array(months+1).fill(0);
-    const worst = Array(months+1).fill(0);
-
-    const bVals = assets.map(a => a.visible !== false ? a.value : 0);
-    const aVals = assets.map(a => a.visible !== false ? a.value : 0);
-    const wVals = assets.map(a => a.visible !== false ? a.value : 0);
-    const startVals = assets.map(a => a.visible !== false ? a.value : 0);
-
-    best[0] = assets[index].visible !== false ? bVals[index] : 0;
-    avg[0] = assets[index].visible !== false ? aVals[index] : 0;
-    worst[0] = assets[index].visible !== false ? wVals[index] : 0;
-
-    for (let i=1;i<=months;i++) {
-        assets.forEach((asset, idx)=>{
-            if(asset.visible === false) return;
-            const start = startVals[idx];
-            if(asset.incType === 'pct'){
-                const bRate = asset.incBest/100/12;
-                const aRate = asset.incAvg/100/12;
-                const wRate = asset.incWorst/100/12;
-                if(asset.compoundEnabled!==false){
-                    bVals[idx] *= 1 + bRate;
-                    aVals[idx] *= 1 + aRate;
-                    wVals[idx] *= 1 + wRate;
-                } else {
-                    bVals[idx] += start*bRate;
-                    aVals[idx] += start*aRate;
-                    wVals[idx] += start*wRate;
-                }
-            } else {
-                bVals[idx] += asset.incBest;
-                aVals[idx] += asset.incAvg;
-                wVals[idx] += asset.incWorst;
-            }
-        });
-        flows.forEach(f=>{
-            const fromOk = f.from>=0 && assets[f.from]?.visible!==false;
-            const toOk = f.to>=0 && assets[f.to]?.visible!==false;
-            if(fromOk && toOk){
-                bVals[f.from]-=f.amount; bVals[f.to]+=f.amount;
-                aVals[f.from]-=f.amount; aVals[f.to]+=f.amount;
-                wVals[f.from]-=f.amount; wVals[f.to]+=f.amount;
-            } else if(fromOk && f.to===-1){
-                bVals[f.from]-=f.amount;
-                aVals[f.from]-=f.amount;
-                wVals[f.from]-=f.amount;
-            } else if(toOk && f.from===-1){
-                bVals[f.to]+=f.amount;
-                aVals[f.to]+=f.amount;
-                wVals[f.to]+=f.amount;
-            }
-        });
-        best[i] = bVals[index];
-        avg[i] = aVals[index];
-        worst[i] = wVals[index];
-    }
-    return {best, avg, worst};
-}
 
 let chart = null;
 let pieChart = null;
@@ -586,7 +517,7 @@ let pieChart = null;
 function updateChart() {
     const years = parseInt(yearsInput.value) || 20;
     const months = years * 12;
-    const data = selectedAssetIndex!=null ? forecastAsset(selectedAssetIndex, months) : forecast(months);
+    const data = forecast(months);
 
     const bestPts = data.best.map((v,i)=>({x:i/12, y:v}));
     const avgPts = data.avg.map((v,i)=>({x:i/12, y:v}));
