@@ -564,10 +564,14 @@ function forecastAsset(index, months){
 let chart = null;
 let pieChart = null;
 
+const MAX_RETIRE_YEARS = 100;
+
 function updateChart() {
     const years = parseInt(yearsInput.value) || 20;
     const months = years * 12;
     const data = selectedAssetIndex!=null ? forecastAsset(selectedAssetIndex, months) : forecast(months);
+    const retireMonths = MAX_RETIRE_YEARS * 12;
+    const retireData = selectedAssetIndex!=null ? forecastAsset(selectedAssetIndex, retireMonths) : forecast(retireMonths);
 
     const bestPts = data.best.map((v,i)=>({x:i/12, y:v}));
     const avgPts = data.avg.map((v,i)=>({x:i/12, y:v}));
@@ -610,9 +614,9 @@ function updateChart() {
     const findRetire = arr => {
         for(let i=0;i<arr.length;i++) if(arr[i]>=target) return i; return null;
     };
-    const rBest = findRetire(data.best);
-    const rAvg = findRetire(data.avg);
-    const rWorst = findRetire(data.worst);
+    const rBest = findRetire(retireData.best);
+    const rAvg = findRetire(retireData.avg);
+    const rWorst = findRetire(retireData.worst);
     retireBestSpan.textContent = rBest!=null?`Best: ${(rBest/12).toFixed(1)} yrs`:'Best: N/A';
     retireAvgSpan.textContent = rAvg!=null?`Average: ${(rAvg/12).toFixed(1)} yrs`:'Average: N/A';
     retireWorstSpan.textContent = rWorst!=null?`Worst: ${(rWorst/12).toFixed(1)} yrs`:'Worst: N/A';
