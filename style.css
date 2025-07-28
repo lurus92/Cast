@@ -231,7 +231,7 @@ h3 {
     margin-bottom: 0.75rem;
 }
 
-#asset-list, #flow-list, .asset-flow-list {
+#asset-list, #flow-list, .asset-flow-list, .flow-list {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
