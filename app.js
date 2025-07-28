@@ -567,9 +567,9 @@ function updateChart() {
     const rBest = findRetire(retireData.best);
     const rAvg = findRetire(retireData.avg);
     const rWorst = findRetire(retireData.worst);
-    retireBestSpan.textContent = rBest!=null?`Best: ${(rBest/12).toFixed(1)} yrs`:'Best: N/A';
-    retireAvgSpan.textContent = rAvg!=null?`Average: ${(rAvg/12).toFixed(1)} yrs`:'Average: N/A';
-    retireWorstSpan.textContent = rWorst!=null?`Worst: ${(rWorst/12).toFixed(1)} yrs`:'Worst: N/A';
+    retireBestSpan.textContent = rBest!=null?`${(rBest/12).toFixed(1)} yrs`:'N/A';
+    retireAvgSpan.textContent = rAvg!=null?`${(rAvg/12).toFixed(1)} yrs`:'N/A';
+    retireWorstSpan.textContent = rWorst!=null?`${(rWorst/12).toFixed(1)} yrs`:'N/A';
 
     yearTable.innerHTML = '';
     const header = document.createElement('tr');
