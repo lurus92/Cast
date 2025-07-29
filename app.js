@@ -1,6 +1,10 @@
 let assets = JSON.parse(localStorage.getItem('assets') || '[]');
 // Ensure visibility flag exists
-assets.forEach(a => { if(a.visible === undefined) a.visible = true; });
+assets.forEach(a => {
+    if(a.visible === undefined) a.visible = true;
+    if(a.inflationEnabled === undefined) a.inflationEnabled = false;
+    if(a.inflationRate === undefined) a.inflationRate = 0;
+});
 let flows = JSON.parse(localStorage.getItem('flows') || '[]');
 let expenses = parseFloat(localStorage.getItem('expenses')) || 0;
 
@@ -49,12 +53,17 @@ const compToggle = document.getElementById('asset-comp-toggle');
 const assetAddFlowBtn = document.getElementById('asset-add-flow');
 const assetFlowList = document.getElementById('asset-flow-list');
 const compFreqLabel = document.getElementById('compound-frequency');
+const inflationToggle = document.getElementById('asset-inflation-toggle');
+const inflationRateLabel = document.getElementById('inflation-rate');
+const inflationRateInput = document.getElementById('asset-inflation-rate');
 const saveAsset = document.getElementById('save-asset');
 const cancelAsset = document.getElementById('cancel-asset');
 const deleteAssetBtn = document.getElementById('delete-asset');
 
 compToggle.onchange = updateCompoundVisibility;
 updateCompoundVisibility();
+inflationToggle.onchange = updateInflationVisibility;
+updateInflationVisibility();
 
 // Handle asset type icon updates
 typeInput.onchange = () => {
@@ -250,6 +259,10 @@ function updateCompoundVisibility(){
     compFreqLabel.style.display = compToggle.checked ? 'flex' : 'none';
 }
 
+function updateInflationVisibility(){
+    inflationRateLabel.style.display = inflationToggle.checked ? 'flex' : 'none';
+}
+
 function openForm(index) {
     if (index != null) {
         editIndex = index;
@@ -265,6 +278,9 @@ function openForm(index) {
         compoundInput.value = a.compound;
         compToggle.checked = a.compoundEnabled !== false;
         updateCompoundVisibility();
+        inflationToggle.checked = a.inflationEnabled === true;
+        inflationRateInput.value = a.inflationRate || '';
+        updateInflationVisibility();
         deleteAssetBtn.classList.remove('hidden');
         assetAddFlowBtn.classList.remove('hidden');
         renderAssetFlows(index);
@@ -281,6 +297,9 @@ function openForm(index) {
         compoundInput.value = 'monthly';
         compToggle.checked = true;
         updateCompoundVisibility();
+        inflationToggle.checked = false;
+        inflationRateInput.value = '';
+        updateInflationVisibility();
         deleteAssetBtn.classList.add('hidden');
         assetAddFlowBtn.classList.remove('hidden');
         renderAssetFlows(null);
@@ -302,6 +321,8 @@ function formData() {
         incType: incType.value,
         compound: compoundInput.value,
         compoundEnabled: compToggle.checked,
+        inflationEnabled: inflationToggle.checked,
+        inflationRate: parseFloat(inflationRateInput.value) || 0,
     };
 }
 
@@ -484,6 +505,12 @@ function forecast(months) {
                 bVals[idx] += asset.incBest;
                 aVals[idx] += asset.incAvg;
                 wVals[idx] += asset.incWorst;
+            }
+            if(asset.inflationEnabled){
+                const inf = (asset.inflationRate||0)/100/12;
+                bVals[idx] *= 1 + inf;
+                aVals[idx] *= 1 + inf;
+                wVals[idx] *= 1 + inf;
             }
         });
         flows.forEach(f=>{

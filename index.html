@@ -140,6 +140,17 @@
                     <option value="yearly">Yearly</option>
                 </select>
             </label>
+            <div class="toggle-row">
+                <span class="toggle-label">Subject to inflation?</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="asset-inflation-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <label id="inflation-rate" style="display:none;">
+                Inflation rate
+                <input type="number" id="asset-inflation-rate" placeholder="%" />
+            </label>
 
             <div class="modal-actions">
                 <button id="delete-asset" class="danger hidden"><i class="fa fa-trash"></i></button>
