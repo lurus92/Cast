@@ -15,6 +15,10 @@ const colorPalette = [
 const OUTSIDE_INCOME = 'Outside Cast (income)';
 const OUTSIDE_EXPENSE = 'Outside Cast (expense)';
 
+const TABLE_YEARS = 10;
+let selectedYear = null;
+let assetForecastAvg = [];
+
 const ASSET_TYPE_ICONS = {
     cash: 'fa-money-bill',
     investing: 'fa-chart-line',
@@ -169,7 +173,7 @@ function renderAssets() {
     
     totalWealthDiv.textContent = `Total wealth: ${formatNumber(total)}`;
     renderFlows();
-    updatePieChart();
+    updatePieChart(selectedYear);
     if(updated) saveData();
 }
 
@@ -556,6 +560,45 @@ function forecast(months, includeTypes = null) {
     }
     return {best, avg, worst};
 }
+function forecastAvgAssets(months){
+    const vals = assets.map(a => a.visible !== false ? a.value : 0);
+    const startVals = assets.map(a => a.visible !== false ? a.value : 0);
+    const result = [vals.slice()];
+    for(let i=1;i<=months;i++){
+        assets.forEach((asset,idx)=>{
+            if(asset.visible === false) return;
+            const start = startVals[idx];
+            if(asset.incType === 'pct'){
+                const rate = asset.incAvg/100/12;
+                if(asset.compoundEnabled!==false){
+                    vals[idx] *= 1 + rate;
+                } else {
+                    vals[idx] += start * rate;
+                }
+            } else {
+                vals[idx] += asset.incAvg;
+            }
+            if(asset.inflationEnabled){
+                const inf = (asset.inflationRate||0)/100/12;
+                vals[idx] *= 1 + inf;
+            }
+        });
+        flows.forEach(f=>{
+            const fromOk = f.from>=0 && assets[f.from]?.visible!==false;
+            const toOk = f.to>=0 && assets[f.to]?.visible!==false;
+            if(fromOk && toOk){
+                vals[f.from]-=f.amount;
+                vals[f.to]+=f.amount;
+            } else if(fromOk && f.to===-1){
+                vals[f.from]-=f.amount;
+            } else if(toOk && f.from===-1){
+                vals[f.to]+=f.amount;
+            }
+        });
+        result[i] = vals.slice();
+    }
+    return result;
+}
 
 
 let chart = null;
@@ -566,7 +609,11 @@ const MAX_RETIRE_YEARS = 100;
 function updateChart() {
     const years = parseInt(yearsInput.value) || 20;
     const months = years * 12;
+    const tableMonths = TABLE_YEARS * 12;
+    const maxMonths = Math.max(months, tableMonths);
     const data = forecast(months);
+    const tableData = months >= tableMonths ? data : forecast(tableMonths);
+    assetForecastAvg = forecastAvgAssets(maxMonths);
     const retireMonths = MAX_RETIRE_YEARS * 12;
     const retireData = forecast(retireMonths, getSelectedRetireTypes());
 
@@ -622,20 +669,64 @@ function updateChart() {
     const header = document.createElement('tr');
     header.innerHTML = '<th>Year</th><th>Best</th><th>Average</th><th>Worst</th>';
     yearTable.appendChild(header);
-    for(let y=0;y<=10&&y<data.best.length;y++){
+    for(let y=0; y<=TABLE_YEARS && y<tableData.best.length; y++){
         const row = document.createElement('tr');
-        const b = data.best[Math.min(y*12,data.best.length-1)];
-        const a = data.avg[Math.min(y*12,data.avg.length-1)];
-        const w = data.worst[Math.min(y*12,data.worst.length-1)];
+        const b = tableData.best[Math.min(y*12, tableData.best.length-1)];
+        const a = tableData.avg[Math.min(y*12, tableData.avg.length-1)];
+        const w = tableData.worst[Math.min(y*12, tableData.worst.length-1)];
         row.innerHTML = `<td>${y}</td><td>${formatNumber(b)}</td><td>${formatNumber(a)}</td><td>${formatNumber(w)}</td>`;
+        row.dataset.year = y;
+        if(selectedYear===y) row.classList.add('selected');
+        row.addEventListener('click', ()=>{
+            selectedYear = selectedYear===y ? null : y;
+            highlightYearRows();
+            updatePieChart(selectedYear);
+        });
         yearTable.appendChild(row);
     }
+    highlightYearRows();
+    updatePieChart(selectedYear);
 }
 
-function updatePieChart(){
+function highlightYearRows(){
+    const rows = yearTable.querySelectorAll('tr[data-year]');
+    rows.forEach(row=>{
+        const yr = parseInt(row.dataset.year);
+        if(selectedYear===yr) row.classList.add('selected');
+        else row.classList.remove('selected');
+    });
+}
+
+function updateAssetPercentages(values){
+    const spans = document.querySelectorAll('#asset-list .asset-percentage');
+    const total = values.reduce((s,v)=>s+v,0);
+    let idx = 0;
+    assets.forEach((asset,i)=>{
+        const span = spans[i];
+        if(!span) return;
+        if(asset.visible !== false){
+            const pct = total>0?((values[idx]/total)*100).toFixed(1):'0.0';
+            span.textContent = ` (${pct}%)`;
+            idx++;
+        } else {
+            span.textContent = ' (0.0%)';
+        }
+    });
+}
+
+function updatePieChart(year=null){
     const visible = assets.filter(a => a.visible !== false);
     const labels = visible.map(a=>a.name);
-    const data = visible.map(a=>a.value);
+    let data;
+    if(year === null){
+        data = visible.map(a=>a.value);
+    } else {
+        const idx = Math.min(year*12, assetForecastAvg.length-1);
+        data = visible.map(a=>{
+            const ai = assets.indexOf(a);
+            return assetForecastAvg[idx][ai];
+        });
+    }
     const colors = visible.map((a,i)=>{
         if(!a.color) a.color = colorPalette[i % colorPalette.length];
         return a.color;
@@ -648,6 +739,7 @@ function updatePieChart(){
         data: {labels, datasets:[{data, backgroundColor: colors}]},
         options: {plugins: {legend: {display: false}}}
     });
+    updateAssetPercentages(data);
 }
 
 function updateSankey(){
@@ -672,7 +764,7 @@ function updateSankey(){
 
 renderAssets();
 updateChart();
-updatePieChart();
+updatePieChart(selectedYear);
 
 // Tab navigation for mobile
 const sections = document.querySelectorAll('.tab-section');

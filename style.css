@@ -239,6 +239,16 @@ h3 {
     font-size: 0.875rem;
     letter-spacing: 0.05em;
 }
+#year-table tr.selected td {
+    background: #e0f2fe;
+}
+#year-table tr:hover td {
+    background: #f8fafc;
+    cursor: pointer;
+}
+#year-table tr.selected:hover td {
+    background: #e0f2fe;
+}
 
 
 #total-wealth {
