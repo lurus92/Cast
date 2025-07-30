@@ -328,6 +328,17 @@ h3 {
     color: #ef4444;
 }
 
+.flow .flow-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.flow .flow-structure {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
 .asset {
     border: 1px solid #e2e8f0;
     padding: 1rem;

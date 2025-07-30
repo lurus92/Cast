@@ -91,6 +91,7 @@ const flowTitle = document.getElementById('flow-title');
 const flowFrom = document.getElementById('flow-from');
 const flowTo = document.getElementById('flow-to');
 const flowAmount = document.getElementById('flow-amount');
+const flowName = document.getElementById('flow-name');
 const saveFlow = document.getElementById('save-flow');
 const cancelFlow = document.getElementById('cancel-flow');
 const deleteFlowBtn = document.getElementById('delete-flow');
@@ -206,36 +207,45 @@ function renderFlows() {
         const to = flow.to >= 0 ? (assets[flow.to]?.name||'') : 
                   (flow.from >= 0 ? OUTSIDE_EXPENSE : OUTSIDE_INCOME);
         
-        // Create flow elements
-        const fromText = document.createElement('span');
-        fromText.textContent = from;
-        
-        const arrow = document.createElement('i');
-        arrow.className = 'fa fa-arrow-right flow-arrow';
-        
-        const toText = document.createElement('span');
-        toText.textContent = to;
-        
         const amount = document.createElement('span');
         amount.textContent = formatNumber(flow.amount);
+
+        let fromText, arrow, toText;
+        if(flow.name){
+            const info = document.createElement('div');
+            info.className = 'flow-info';
+            const nameDiv = document.createElement('div');
+            nameDiv.textContent = flow.name;
+            const structDiv = document.createElement('div');
+            structDiv.className = 'flow-structure';
+            structDiv.textContent = `${from} -> ${to}`;
+            info.appendChild(nameDiv);
+            info.appendChild(structDiv);
+            div.append(info, amount);
+        } else {
+            fromText = document.createElement('span');
+            fromText.textContent = from;
+            arrow = document.createElement('i');
+            arrow.className = 'fa fa-arrow-right flow-arrow';
+            toText = document.createElement('span');
+            toText.textContent = to;
+            div.append(fromText, arrow, toText, amount);
+        }
         
         // Determine flow type and add to appropriate section
         if (flow.from === -1 && flow.to >= 0) {
             // Income flow
             amount.className = 'flow-amount income';
             totalIncome += flow.amount;
-            div.append(fromText, arrow, toText, amount);
             incomeSection.appendChild(div);
         } else if (flow.from >= 0 && flow.to === -1) {
             // Outgoing flow
             amount.className = 'flow-amount outgoing';
             totalOutgoing += flow.amount;
-            div.append(fromText, arrow, toText, amount);
             outgoingSection.appendChild(div);
         } else if (flow.from >= 0 && flow.to >= 0) {
             // Internal flow
             amount.className = 'flow-amount internal';
-            div.append(fromText, arrow, toText, amount);
             internalSection.appendChild(div);
         }
         
@@ -255,12 +265,44 @@ function renderAssetFlows(index){
     flows.forEach((flow,i)=>{
         if(flow.from===index || flow.to===index){
             const div = document.createElement('div');
-            div.className = 'asset';
-            const from = flow.from>=0 ? (assets[flow.from]?.name||'') : 
+            div.className = 'flow';
+            const from = flow.from>=0 ? (assets[flow.from]?.name||'') :
                         (flow.to >= 0 ? OUTSIDE_INCOME : OUTSIDE_EXPENSE);
-            const to = flow.to>=0 ? (assets[flow.to]?.name||'') : 
+            const to = flow.to>=0 ? (assets[flow.to]?.name||'') :
                       (flow.from >= 0 ? OUTSIDE_EXPENSE : OUTSIDE_INCOME);
-            div.textContent = `${from} -> ${to}: ${flow.amount}`;
+            const amount = document.createElement('span');
+            amount.textContent = formatNumber(flow.amount);
+
+            let fromText, arrow, toText;
+            if(flow.name){
+                const info = document.createElement('div');
+                info.className = 'flow-info';
+                const nameDiv = document.createElement('div');
+                nameDiv.textContent = flow.name;
+                const structDiv = document.createElement('div');
+                structDiv.className = 'flow-structure';
+                structDiv.textContent = `${from} -> ${to}`;
+                info.appendChild(nameDiv);
+                info.appendChild(structDiv);
+                div.append(info, amount);
+            } else {
+                fromText = document.createElement('span');
+                fromText.textContent = from;
+                arrow = document.createElement('i');
+                arrow.className = 'fa fa-arrow-right flow-arrow';
+                toText = document.createElement('span');
+                toText.textContent = to;
+                div.append(fromText, arrow, toText, amount);
+            }
+
+            if (flow.from === -1 && flow.to >= 0) {
+                amount.className = 'flow-amount income';
+            } else if (flow.from >= 0 && flow.to === -1) {
+                amount.className = 'flow-amount outgoing';
+            } else {
+                amount.className = 'flow-amount internal';
+            }
+
             div.onclick = () => openFlowForm(i);
             assetFlowList.appendChild(div);
         }
@@ -340,6 +382,7 @@ function formData() {
 
 function flowData() {
     return {
+        name: flowName.value.trim(),
         from: parseInt(flowFrom.value),
         to: parseInt(flowTo.value),
         amount: parseFloat(flowAmount.value) || 0,
@@ -438,6 +481,7 @@ function openFlowForm(index){
         editFlowIndex = index;
         const f = flows[index];
         flowTitle.textContent = 'Edit Flow';
+        flowName.value = f.name || '';
         flowFrom.value = f.from;
         flowTo.value = f.to;
         flowAmount.value = f.amount;
@@ -445,6 +489,7 @@ function openFlowForm(index){
     } else {
         editFlowIndex = null;
         flowTitle.textContent = 'New Flow';
+        flowName.value = '';
         flowFrom.selectedIndex = 0;
         flowTo.selectedIndex = 0;
         flowAmount.value = '';
