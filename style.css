@@ -109,6 +109,23 @@ h3 {
     gap: 0.5rem;
     font-weight: 600;
 }
+.retire-filters {
+    margin-left: auto;
+    display: flex;
+    gap: 0.25rem;
+}
+.retire-filter input { display:none; }
+.retire-filter i {
+    padding: 0.25rem 0.4rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    color: #475569;
+    cursor: pointer;
+}
+.retire-filter input:checked + i {
+    background: #3b82f6;
+    color: white;
+}
 
 .info-tooltip {
     position: relative;

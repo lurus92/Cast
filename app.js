@@ -37,6 +37,7 @@ const retireAvgSpan = document.getElementById('retire-avg');
 const retireWorstSpan = document.getElementById('retire-worst');
 const yearTable = document.getElementById('year-table');
 const yearsInput = document.getElementById('years');
+const retireFilterInputs = document.querySelectorAll('#retirement .retire-filter input');
 
 
 const formModal = document.getElementById('asset-form');
@@ -64,6 +65,13 @@ compToggle.onchange = updateCompoundVisibility;
 updateCompoundVisibility();
 inflationToggle.onchange = updateInflationVisibility;
 updateInflationVisibility();
+retireFilterInputs.forEach(i => i.addEventListener('change', updateChart));
+
+function getSelectedRetireTypes(){
+    return Array.from(retireFilterInputs)
+        .filter(i => i.checked)
+        .map(i => i.dataset.type);
+}
 
 // Handle asset type icon updates
 typeInput.onchange = () => {
@@ -469,7 +477,7 @@ deleteFlowBtn.onclick = () => {
     closeFlowForm();
 };
 
-function forecast(months) {
+function forecast(months, includeTypes = null) {
     const best = Array(months+1).fill(0);
     const avg = Array(months+1).fill(0);
     const worst = Array(months+1).fill(0);
@@ -479,9 +487,15 @@ function forecast(months) {
     const wVals = assets.map(a => a.visible !== false ? a.value : 0);
     const startVals = assets.map(a => a.visible !== false ? a.value : 0);
 
-    best[0] = bVals.reduce((s,v)=>s+v,0);
-    avg[0] = best[0];
-    worst[0] = best[0];
+    const initialSum = (arr) => arr.reduce((s,v,idx)=>{
+        const a = assets[idx];
+        if(a.visible===false) return s;
+        if(includeTypes && !includeTypes.includes(a.type)) return s;
+        return s+v;
+    },0);
+    best[0] = initialSum(bVals);
+    avg[0] = initialSum(aVals);
+    worst[0] = initialSum(wVals);
 
     for (let i=1;i<=months;i++) {
         assets.forEach((asset, idx)=>{
@@ -530,9 +544,15 @@ function forecast(months) {
                 wVals[f.to]+=f.amount;
             }
         });
-        best[i] = bVals.reduce((s,v)=>s+v,0);
-        avg[i] = aVals.reduce((s,v)=>s+v,0);
-        worst[i] = wVals.reduce((s,v)=>s+v,0);
+        const sum = (arr) => arr.reduce((s,v,idx)=>{
+            const a = assets[idx];
+            if(a.visible===false) return s;
+            if(includeTypes && !includeTypes.includes(a.type)) return s;
+            return s+v;
+        },0);
+        best[i] = sum(bVals);
+        avg[i] = sum(aVals);
+        worst[i] = sum(wVals);
     }
     return {best, avg, worst};
 }
@@ -548,7 +568,7 @@ function updateChart() {
     const months = years * 12;
     const data = forecast(months);
     const retireMonths = MAX_RETIRE_YEARS * 12;
-    const retireData = forecast(retireMonths);
+    const retireData = forecast(retireMonths, getSelectedRetireTypes());
 
     const bestPts = data.best.map((v,i)=>({x:i/12, y:v}));
     const avgPts = data.avg.map((v,i)=>({x:i/12, y:v}));
