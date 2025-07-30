@@ -226,7 +226,11 @@ h3 {
     background: #e0f2fe;
 }
 #year-table tr:hover td {
+    background: #f8fafc;
     cursor: pointer;
+}
+#year-table tr.selected:hover td {
+    background: #e0f2fe;
 }
 
 

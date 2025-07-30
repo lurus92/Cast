@@ -677,6 +677,23 @@ function highlightYearRows(){
     });
 }
 
+function updateAssetPercentages(values){
+    const spans = document.querySelectorAll('#asset-list .asset-percentage');
+    const total = values.reduce((s,v)=>s+v,0);
+    let idx = 0;
+    assets.forEach((asset,i)=>{
+        const span = spans[i];
+        if(!span) return;
+        if(asset.visible !== false){
+            const pct = total>0?((values[idx]/total)*100).toFixed(1):'0.0';
+            span.textContent = ` (${pct}%)`;
+            idx++;
+        } else {
+            span.textContent = ' (0.0%)';
+        }
+    });
+}
+
 function updatePieChart(year=null){
     const visible = assets.filter(a => a.visible !== false);
     const labels = visible.map(a=>a.name);
@@ -702,9 +719,7 @@ function updatePieChart(year=null){
         data: {labels, datasets:[{data, backgroundColor: colors}]},
         options: {plugins: {legend: {display: false}}}
     });
-}
-        options: {plugins: {legend: {display: false}}}
-    });
+    updateAssetPercentages(data);
 }
 
 function updateSankey(){
