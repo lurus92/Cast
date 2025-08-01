@@ -29,3 +29,28 @@ Then visit `http://localhost:8000`.
 - **Font Awesome** – icons.
 
 All data stays in your browser; there is no backend or authentication.
+
+## Mobile
+
+This app can also run as a native mobile application using [Capacitor](https://capacitorjs.com/).
+
+### Setup
+1. Install dependencies:
+```bash
+npm install
+```
+2. Add the platforms you need:
+```bash
+npx cap add android
+npx cap add ios  # optional on macOS
+```
+3. Build the web assets (none needed for this static site) and copy them:
+```bash
+npx cap copy
+```
+4. Open the project in the native IDE:
+```bash
+npx cap open android  # or ios
+```
+From there you can run the app on a device or emulator.
+

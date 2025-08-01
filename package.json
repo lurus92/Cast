@@ -1,0 +1,23 @@
+{
+  "name": "cast",
+  "version": "1.0.0",
+  "description": "Cast (short for **Forecast**) helps visualize how your wealth could grow over time and estimates when you might reach financial independence. It is entirely client side and uses vanilla JavaScript with [Chart.js](https://www.chartjs.org/) and Google Charts.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx http-server -p 8000",
+    "android": "npx cap open android",
+    "ios": "npx cap open ios"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/cli": "^7.4.2",
+    "@capacitor/core": "^7.4.2"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
