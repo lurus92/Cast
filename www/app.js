@@ -538,6 +538,7 @@ function updateChart() {
             ]
         },
         options: {
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     type: 'linear',
@@ -620,7 +621,8 @@ function updateSankey(){
     });
     if(!sankeyChart) sankeyChart = new google.visualization.Sankey(sankeyDiv);
     const width = sankeyDiv.clientWidth;
-    sankeyChart.draw(data, {width, height:300});
+    const height = Math.max(260, Math.min(440, window.innerHeight * 0.45));
+    sankeyChart.draw(data, {width, height});
 }
 
 renderAssets();
