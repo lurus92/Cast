@@ -513,6 +513,7 @@ function forecast(months) {
 
 let chart = null;
 let pieChart = null;
+let resizeTimeout = null;
 
 const MAX_RETIRE_YEARS = 100;
 
@@ -538,6 +539,8 @@ function updateChart() {
             ]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     type: 'linear',
@@ -643,9 +646,20 @@ tabButtons.forEach(btn=>{
         tabButtons.forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
         showTab(btn.dataset.tab);
+        requestAnimationFrame(()=>{
+            if(btn.dataset.tab === 'flows-section') updateSankey();
+            if(btn.dataset.tab === 'forecast-section') updateChart();
+        });
     });
 });
 
 // Show default tab
 showTab('forecast-section');
-window.addEventListener('resize', updateSankey);
+function handleResize(){
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(()=>{
+        updateChart();
+        updateSankey();
+    },150);
+}
+window.addEventListener('resize', handleResize);
