@@ -4,21 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cast - Wealth Forecast</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </head>
 <body>
+    <div class="bg-accent"></div>
     <header class="title-bar">
-        <h1>Cast</h1>
+        <div class="brand-mark">
+            <div class="logo-dot"></div>
+            <h1>Cast</h1>
+        </div>
+        <div class="title-actions">
+            <span class="pill">Wealth forecaster</span>
+        </div>
     </header>
-    <div class="container">
-        <div id="forecast-section" class="tab-section">
-            <canvas id="chart"></canvas>
-            <div id="years-wrap">
+    <main class="layout">
+        <section id="forecast-section" class="tab-section active">
+            <div class="panel hero-panel">
+                <div class="panel-header">
+                    <div>
+                        <p class="eyebrow">Your future balance</p>
+                        <h2>Forecast overview</h2>
+                    </div>
+                    <span class="pill live">Live</span>
+                </div>
+                <div class="chart-shell">
+                    <canvas id="chart"></canvas>
+                </div>
                 <div class="years-control">
-                    <span class="label">Years to display:</span>
+                    <div>
+                        <p class="eyebrow">Years to display</p>
+                        <p class="muted">Tune the horizon for the projection.</p>
+                    </div>
                     <div class="number-control">
                         <button class="number-btn" id="years-minus"><i class="fa fa-minus"></i></button>
                         <input type="number" id="years" value="20" min="1">
@@ -26,63 +48,118 @@
                     </div>
                 </div>
             </div>
-            <div id="retirement">
-                <h3>Time to Retire 
-                    <span class="info-tooltip">
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="eyebrow">Financial independence</div>
+                    <div class="info-tooltip">
                         <i class="fa fa-info-circle"></i>
                         <span class="tooltip-text">Based on the 4% Rule: A financial principle suggesting you can safely withdraw 4% of your investment portfolio each year for retirement income. When your yearly investment returns (estimated at 4%) equal your expenses, you've reached financial independence.</span>
-                    </span>
-                </h3>
+                    </div>
+                </div>
                 <div class="retirement-scenarios">
                     <div class="scenario best">
-                        <span class="label">Best Case</span>
+                        <p class="label">Best case</p>
                         <span id="retire-best" class="value"></span>
+                        <p class="muted">Aggressive growth</p>
                     </div>
                     <div class="scenario average">
-                        <span class="label">Average Case</span>
+                        <p class="label">Average case</p>
                         <span id="retire-avg" class="value"></span>
+                        <p class="muted">Balanced outlook</p>
                     </div>
                     <div class="scenario worst">
-                        <span class="label">Worst Case</span>
+                        <p class="label">Safety net</p>
                         <span id="retire-worst" class="value"></span>
+                        <p class="muted">Conservative path</p>
                     </div>
                 </div>
             </div>
-            <table id="year-table"></table>
-        </div>
-        <div id="side-sections">
-        <div id="assets-section" class="tab-section">
-            <h2>Assets</h2>
-            <div id="total-wealth"></div>
-            <canvas id="asset-pie"></canvas>
-            <div id="asset-list"></div>
-            <button id="add-asset" class="fab"><i class="fa fa-plus"></i><span>Add Asset</span></button>
-        </div>
-        <div id="flows-section" class="tab-section">
-            <h2>Flows</h2>
-            <div id="flow-sankey" style="width:100%;height:300px;"></div>
-            <div id="income-flows" class="flow-section">
-                <h3>Income</h3>
-                <div class="flow-list"></div>
-                <div class="flow-total"></div>
+
+            <div class="panel table-panel">
+                <div class="panel-header">
+                    <div>
+                        <p class="eyebrow">Year-by-year</p>
+                        <h3 class="table-title">Projection breakdown</h3>
+                    </div>
+                </div>
+                <table id="year-table"></table>
             </div>
-            <div id="internal-flows" class="flow-section">
-                <h3>Internal Movements</h3>
-                <div class="flow-list"></div>
+        </section>
+
+        <section id="side-sections">
+            <div id="assets-section" class="tab-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Portfolio</p>
+                            <h2>Assets</h2>
+                        </div>
+                        <span class="pill soft" id="total-wealth"></span>
+                    </div>
+                    <div class="asset-grid">
+                        <div class="pie-card">
+                            <canvas id="asset-pie"></canvas>
+                        </div>
+                        <div class="asset-list-wrap" id="asset-list"></div>
+                    </div>
+                    <button id="add-asset" class="fab"><i class="fa fa-plus"></i><span>Add Asset</span></button>
+                </div>
             </div>
-            <div id="outgoing-flows" class="flow-section">
-                <h3>Outgoing</h3>
-                <div class="flow-list"></div>
-                <div class="flow-total"></div>
+
+            <div id="flows-section" class="tab-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Movement</p>
+                            <h2>Flows</h2>
+                        </div>
+                    </div>
+                    <div id="flow-sankey" class="sankey-shell"></div>
+                    <div class="flow-cards">
+                        <div id="income-flows" class="flow-section">
+                            <div class="section-title">
+                                <h3>Income</h3>
+                                <div class="flow-total"></div>
+                            </div>
+                            <div class="flow-list"></div>
+                        </div>
+                        <div id="internal-flows" class="flow-section">
+                            <div class="section-title">
+                                <h3>Internal Movements</h3>
+                            </div>
+                            <div class="flow-list"></div>
+                        </div>
+                        <div id="outgoing-flows" class="flow-section">
+                            <div class="section-title">
+                                <h3>Outgoing</h3>
+                                <div class="flow-total"></div>
+                            </div>
+                            <div class="flow-list"></div>
+                        </div>
+                    </div>
+                    <button id="add-flow" class="fab"><i class="fa fa-plus"></i><span>Add Flow</span></button>
+                </div>
             </div>
-            <button id="add-flow" class="fab"><i class="fa fa-plus"></i><span>Add Flow</span></button>
-        </div>
-        <div id="expenses-section" class="tab-section">
-            <h2>Yearly Expenses</h2>
-            <input type="number" id="expenses" placeholder="Yearly expenses" />
-        </div>
-        </div> <!-- side-sections -->
-    </div>
+
+            <div id="expenses-section" class="tab-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Cost of living</p>
+                            <h2>Yearly Expenses</h2>
+                        </div>
+                    </div>
+                    <div class="input-stack">
+                        <label>How much do you spend in a year?
+                            <input type="number" id="expenses" placeholder="25,000" />
+                        </label>
+                        <p class="helper-text">Used to estimate when assets can sustain withdrawals at 4%.</p>
+                    </div>
+                </div>
+            </div>
+        </section> <!-- side-sections -->
+    </main>
     <div class="tab-bar">
         <button data-tab="forecast-section" class="active"><i class="fa fa-chart-line"></i><span>Forecast</span></button>
         <button data-tab="assets-section"><i class="fa fa-wallet"></i><span>Assets</span></button>
